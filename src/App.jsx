@@ -139,7 +139,7 @@ function App() {
 function Header({ path, cartCount, navigate, mobileNav, setMobileNav }) {
   const link = (to, label, matches) => <li><a href={to} aria-current={matches ? "page" : undefined} onClick={(event) => { event.preventDefault(); navigate(to); }}>{label}</a></li>;
   return <header className="site-header"><nav className="nav-bar">
-    <a href="/" className="logo" onClick={(event) => { event.preventDefault(); navigate("/"); }}><img className="logo-image" src="/SNACKANDSOLACE%20LOGO.jpeg" alt="SNACKANDSOLACE — Treats that feels like a hug" /></a>
+    <a href="/" className="logo" onClick={(event) => { event.preventDefault(); navigate("/"); }}><img className="logo-image" src="/snackandsolace-logo.jpeg" alt="SNACKANDSOLACE — Treats that feels like a hug" /></a>
     <button className="nav-toggle" aria-label="Toggle menu" aria-expanded={mobileNav} onClick={() => setMobileNav((open) => !open)}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M4 12h16M4 18h16" /></svg></button>
     <ul className={`nav-links ${mobileNav ? "open" : ""}`}>{link("/homepage.html", "Home", path === "/" || path === "/homepage.html")}{link("/aboutpage.html", "About", path.includes("about"))}{link("/paymentpage.html", "Checkout", path.includes("checkout") || path.includes("payment"))}{link("/contactpage.html", "Contact", path.includes("contact"))}</ul>
     <div className="nav-actions"><a href="/cartpage.html" className="cart-pill" onClick={(event) => { event.preventDefault(); navigate("/cartpage.html"); }}><Icon name="cart" /> Cart <span id="cart-count">{cartCount}</span></a></div>
