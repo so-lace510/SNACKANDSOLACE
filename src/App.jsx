@@ -24,8 +24,8 @@ const getDeliveryFee = (address = "") => {
   const zoneOrder = [
     [international, 45000],
     [interstate, 9000],
-    [portHarcourtCore, 1500],
     [portHarcourtOuter, 2500],
+    [portHarcourtCore, 1500],
   ];
 
   for (const [pattern, fee] of zoneOrder) {

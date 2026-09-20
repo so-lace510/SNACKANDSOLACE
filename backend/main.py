@@ -1,5 +1,6 @@
 import os
 import json
+import re
 import sqlite3
 import smtplib
 import uuid
@@ -222,6 +223,24 @@ def get_paystack_headers() -> dict[str, str]:
     }
 
 
+def calculate_delivery_fee(address: str) -> int:
+    normalized = address.strip().lower()
+    if not normalized:
+        return 0
+
+    zones = [
+        (r"\b(uk|united kingdom|usa|united states|america|canada|europe|france|germany|dubai|uae|saudi|qatar|london|new york|toronto|paris|berlin|abroad)\b", 45000),
+        (r"\b(lagos|ikeja|lekki|surulere|yaba|ajah|victoria island|abuja|kubwa|gwarinpa|ibadan|abeokuta|enugu|owerri|aba|asaba|benin|warri|kaduna|kano|jos|katsina|sokoto|kogi|calabar|uyo|akwa ibom|bayelsa|delta|edo|onitsha|nnewi)\b", 9000),
+        (r"\b(woji|choba|aluu|ozuoba|eneka|oroazi|trans-amadi|eliozu|rumuodomaya|mini|oyigbo|eleme|bonny|obio|obio[/-]akpor|akpor)\b", 2500),
+        (r"\b(rumuewhara|rumuola|rumuomasi|diobu|port harcourt|phc|p\.h\.c|old gra|new gra|g\.r\.a|gra|mgbuoba|ada george|ogbunabali|d-line|dline|rivers state|rivers)\b", 1500),
+    ]
+
+    for pattern, fee in zones:
+        if re.search(pattern, normalized, re.IGNORECASE):
+            return fee
+    return 3000
+
+
 def calculate_order_total(order: OrderRequest) -> int:
     product_map = {product["id"]: product for product in PRODUCTS}
     total = 0
@@ -230,7 +249,7 @@ def calculate_order_total(order: OrderRequest) -> int:
         if product is None:
             raise HTTPException(status_code=400, detail=f"Unknown product: {item.id}")
         total += product["price"] * item.quantity
-    return total + order.delivery_fee
+    return total + calculate_delivery_fee(order.address)
 
 
 def send_contact_email(contact: ContactRequest) -> None:
