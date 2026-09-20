@@ -8,7 +8,7 @@ const PRODUCTS = [
 ];
 
 const CART_KEY = "adunbites_cart";
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://127.0.0.1:8000/api" : "");
 const categories = ["Chin-Chin", "Cookies", "Bread", "Fruit Juice"];
 const money = (value) => `₦${value.toLocaleString("en-NG")}`;
 
@@ -71,6 +71,7 @@ function App() {
   }, [cart]);
 
   useEffect(() => {
+    if (!API_URL) return;
     fetch(`${API_URL}/products`)
       .then((response) => response.ok ? response.json() : Promise.reject(new Error("Product request failed")))
       .then((remoteProducts) => setProducts(remoteProducts.slice(0, 4).map((product) => ({
@@ -259,6 +260,7 @@ function Checkout({ cart, setCart, navigate, notify }) {
     };
 
     try {
+      if (!API_URL) throw new Error("VITE_API_URL is not configured in Vercel");
       if (payment === "paystack") {
         const response = await fetch(`${API_URL}/paystack/initialize`, {
           method: "POST",
@@ -279,7 +281,10 @@ function Checkout({ cart, setCart, navigate, notify }) {
 
       throw new Error("Paystack is the only available payment method");
     } catch (submitError) {
-      setError(submitError?.message || "We could not place your order. Please check that the backend is running and try again.");
+      const message = submitError?.message === "Failed to fetch"
+        ? "The payment server could not be reached. Check Vercel VITE_API_URL and the backend CORS settings."
+        : submitError?.message || "We could not place your order. Please try again.";
+      setError(message);
     } finally {
       setSubmitting(false);
     }
