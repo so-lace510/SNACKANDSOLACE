@@ -8,7 +8,7 @@ const PRODUCTS = [
 ];
 
 const CART_KEY = "adunbites_cart";
-const API_URL = "http://127.0.0.1:8000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 const categories = ["Chin-Chin", "Cookies", "Bread", "Fruit Juice"];
 const money = (value) => `₦${value.toLocaleString("en-NG")}`;
 
@@ -21,10 +21,17 @@ const getDeliveryFee = (address = "") => {
   const interstate = /(lagos|ikeja|lekki|surulere|yaba|ajah|victoria island|abuja|kubwa|gwarinpa|ibadan|abeokuta|enugu|owerri|aba|asaba|benin|warri|kaduna|kano|jos|katsina|sokoto|kogi|calabar|uyo|akwa ibom|bayelsa|delta|edo|onitsha|nnewi)/i;
   const international = /(uk|united kingdom|usa|united states|america|canada|europe|france|germany|dubai|uae|saudi|qatar|london|new york|toronto|paris|berlin|abroad)/i;
 
-  if (international.test(normalized)) return 45000;
-  if (interstate.test(normalized)) return 9000;
-  if (portHarcourtCore.test(normalized)) return 1500;
-  if (portHarcourtOuter.test(normalized)) return 2500;
+  const zoneOrder = [
+    [international, 45000],
+    [interstate, 9000],
+    [portHarcourtCore, 1500],
+    [portHarcourtOuter, 2500],
+  ];
+
+  for (const [pattern, fee] of zoneOrder) {
+    if (pattern.test(normalized)) return fee;
+  }
+
   return 3000;
 };
 
@@ -261,7 +268,7 @@ function Checkout({ cart, setCart, navigate, notify }) {
 
         if (!response.ok) {
           const errorDetail = await response.json().catch(() => ({}));
-          throw new Error(errorDetail.detail || "Paystack initialization failed");
+          throw new Error(errorDetail.detail || errorDetail.message || "Paystack initialization failed");
         }
 
         const paystackData = await response.json();
@@ -271,8 +278,8 @@ function Checkout({ cart, setCart, navigate, notify }) {
       }
 
       throw new Error("Paystack is the only available payment method");
-    } catch {
-      setError("We could not place your order. Please check that the backend is running and try again.");
+    } catch (submitError) {
+      setError(submitError?.message || "We could not place your order. Please check that the backend is running and try again.");
     } finally {
       setSubmitting(false);
     }

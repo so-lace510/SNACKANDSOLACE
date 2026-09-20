@@ -37,7 +37,7 @@ const storage = {
 };
 
 const CART_KEY = "adunbites_cart";
-const API_URL = "http://127.0.0.1:8000/api";
+const API_URL = window.SNACKANDSOLACE_API_URL || "http://127.0.0.1:8000/api";
 
 function getCart() {
   const cart = storage.get(CART_KEY) || [];
