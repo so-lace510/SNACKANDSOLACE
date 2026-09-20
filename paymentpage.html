@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — SNACKANDSOLACE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav-bar">
+    <a href="homepage.html" class="logo">
+      <svg class="logo-mark" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="46" fill="var(--emerald-700)"/>
+        <path d="M32 58 C32 40 40 30 50 30 C60 30 68 40 68 58" stroke="var(--gold-500)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <circle cx="50" cy="66" r="6" fill="var(--gold-500)"/>
+      </svg>
+      <span style="color:var(--green-600);">SNACKANDSOLACE</span>
+    </a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <ul class="nav-links">
+      <li><a href="homepage.html">Home</a></li>
+      <li><a href="aboutpage.html">About</a></li>
+      <li><a href="paymentpage.html" aria-current="page">Checkout</a></li>
+      <li><a href="contactpage.html">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="cartpage.html" class="cart-pill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+        Cart <span id="cart-count">0</span>
+      </a>
+    </div>
+  </nav>
+</header>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="homepage.html">Home</a> / <a href="cart.html">Cart</a> / Checkout</div>
+    <h1>Checkout</h1>
+    <p style="color:var(--brown-700);">Enter your delivery details and pick a payment method.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="cart-layout">
+
+      <div class="checkout-panel" id="checkout-panel">
+        <form id="payment-form" novalidate>
+          <h3 style="margin-bottom:20px;">Delivery details</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label for="full-name">Full name</label>
+              <input id="full-name" name="full-name" type="text" placeholder="Chioma Eze" required>
+              <span class="error-msg"></span>
+            </div>
+            <div class="field">
+              <label for="phone">Phone number</label>
+              <input id="phone" name="phone" type="tel" placeholder="080 000 0000" required>
+              <span class="error-msg"></span>
+            </div>
+            <div class="field full">
+              <label for="email">Email address</label>
+              <input id="email" name="email" type="email" placeholder="you@example.com" required>
+              <span class="error-msg"></span>
+            </div>
+            <div class="field full">
+              <label for="address">Delivery address</label>
+              <textarea id="address" name="address" rows="3" placeholder="Street, city, state" required></textarea>
+              <span class="error-msg"></span>
+            </div>
+          </div>
+
+          <h3 style="margin:8px 0 16px;">Payment method</h3>
+          <div class="pay-methods">
+            <label class="pay-method selected" data-method="card">
+              <input type="radio" name="payment-method" value="card" checked>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+              Debit / Credit Card
+            </label>
+            <label class="pay-method" data-method="transfer">
+              <input type="radio" name="payment-method" value="transfer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/></svg>
+              Bank Transfer
+            </label>
+          </div>
+
+          <div class="card-fields show" id="card-fields">
+            <div class="field">
+              <label for="card-number">Card number</label>
+              <input id="card-number" type="text" placeholder="1234 5678 9012 3456" inputmode="numeric">
+              <span class="error-msg"></span>
+            </div>
+            <div class="field">
+              <label for="card-expiry">Expiry (MM/YY)</label>
+              <input id="card-expiry" type="text" placeholder="08/29">
+              <span class="error-msg"></span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="place-order-btn" style="margin-top:10px;">Place order</button>
+        </form>
+      </div>
+
+      <aside class="summary-card">
+        <h3>Order summary</h3>
+        <div id="order-items" style="margin-bottom:12px;"></div>
+        <div class="summary-line"><span>Subtotal</span><span id="pay-subtotal">₦0</span></div>
+        <div class="summary-line"><span>Delivery</span><span id="pay-delivery">₦0</span></div>
+        <div class="summary-line total"><span>Total</span><span id="pay-total">₦0</span></div>
+      </aside>
+
+    </div>
+
+    <div class="confirmation-box" id="confirmation-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 6L9 17l-5-5"/></svg>
+      <h2>Order placed!</h2>
+      <p style="color:var(--brown-700);">Thank you — your tray is being packed. A confirmation has been sent to your email.</p>
+      <div class="order-id">Order ID: <strong id="order-id-value"></strong></div>
+      <div style="margin-top:26px;">
+        <a href="homepage.html" class="btn btn-secondary">Back to home</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="logo" style="color:var(--cream-50);margin-bottom:12px;">SNACKANDSOLACE</div>
+        <p>Freshly made chin-chin, cookies, bread and fruit juice — delivered across Nigeria.</p>
+        <div class="social-row">
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
+          <a href="#" aria-label="Twitter/X"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l16 16M20 4L4 20"/></svg></a>
+          <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></a>
+        </div>
+      </div>
+      <div>
+        <h4>Shop</h4>
+        <ul>
+          <li><a href="homepage.html#shop">All products</a></li>
+          <li><a href="cartpage.html">View cart</a></li>
+          <li><a href="paymentpage.html">Checkout</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="aboutpage.html">About us</a></li>
+          <li><a href="contactpage.html">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Get in touch</h4>
+        <ul>
+          <li>snackandsolace@gmail.com</li>
+          <li>+234 703 7749 735</li>
+          <li>13 Nyejelem close Rumuewhara, Portharcourt, Nigeria</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 SNACKANDSOLACE. All rights reserved.</span>
+      <span>Made with love in Portharcourt, Nigeria.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

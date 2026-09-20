@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SNACKANDSOLACE — Chin-Chin, Cookies, Bread Snack & Fruit Juice</title>
+<meta name="description" content="Freshly baked chin-chin, cookies, bread and cold-pressed fruit juice, delivered to your door.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav-bar">
+    <a href="homepage.html" class="logo">
+      <svg class="logo-mark" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="46" fill="var(--emerald-700)"/>
+        <path d="M32 58 C32 40 40 30 50 30 C60 30 68 40 68 58" stroke="var(--gold-500)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <circle cx="50" cy="66" r="6" fill="var(--gold-500)"/>
+      </svg>
+      <span style="color:var(--green-600);">SNACKANDSOLACE</span>
+    </a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <ul class="nav-links">
+      <li><a href="homepage.html" aria-current="page">Home</a></li>
+      <li><a href="aboutpage.html">About</a></li>
+      <li><a href="paymentpage.html">Checkout</a></li>
+      <li><a href="contactpage.html">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="cartpage.html" class="cart-pill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+        Cart <span id="cart-count">0</span>
+      </a>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-copy">
+      <span class="eyebrow" style="color:var(--gold-500);">Treats that feel like a hug</span>
+      <h1>Everyday snacks, made <em>for comfort</em> — made delicious.</h1>
+      <p class="lede">From crunchy chin-chin to bread snacks and cold-pressed juice, SNACKANDSOLACE brings the taste of a proper kitchen to your doorstep.</p>
+      <div class="hero-ctas">
+        <a href="#categories" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+          Shop the tray
+        </a>
+        <a href="aboutpage.html" class="btn btn-secondary">Our story</a>
+      </div>
+    </div>
+    <div class="hero-tray">
+      <div class="hero-carousel" aria-label="Featured snacks slideshow">
+        <div class="hero-slide active">
+          <div class="hero-slide-card hero-card-chinchin" style="background-image: linear-gradient(135deg, rgba(17, 79, 54, 0.78), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=900&q=80');">
+            <span class="hero-slide-tag">Freshly baked</span>
+            <h3>Crunchy chin-chin</h3>
+            <p>Golden, airy and perfect for sharing with every cup of tea.</p>
+          </div>
+        </div>
+        <div class="hero-slide">
+          <div class="hero-slide-card hero-card-bread" style="background-image: linear-gradient(135deg, rgba(10, 82, 62, 0.82), rgba(0, 0, 0, 0.35)), url('https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=80');">
+            <span class="hero-slide-tag">Warm & soft</span>
+            <h3>Homestyle bread snacks</h3>
+            <p>Soft crumb, hearty flavor and just the right bake for breakfast.</p>
+          </div>
+        </div>
+        <div class="hero-slide">
+          <div class="hero-slide-card hero-card-juice" style="background-image: linear-gradient(135deg, rgba(153, 82, 22, 0.78), rgba(0, 0, 0, 0.38)), url('https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?auto=format&fit=crop&w=900&q=80');">
+            <span class="hero-slide-tag">Cold pressed</span>
+            <h3>Bright fruit juice</h3>
+            <p>Freshly bottled and chilled for a refreshing everyday sip.</p>
+          </div>
+        </div>
+      </div>
+      <div class="hero-dots" aria-label="Slide navigation">
+        <button class="hero-dot active" data-slide="0" aria-label="Show slide 1"></button>
+        <button class="hero-dot" data-slide="1" aria-label="Show slide 2"></button>
+        <button class="hero-dot" data-slide="2" aria-label="Show slide 3"></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="categories">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">What we make</span>
+      <h2>Four cravings, one basket</h2>
+    </div>
+    <div class="container">
+      <div class="section-head left" style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;max-width:100%;">
+        <div>
+          <span class="eyebrow">The full shop</span>
+        </div>
+        <button class="btn btn-secondary" data-filter="all" style="cursor:pointer;">Show everything</button>
+
+        <div class="product-grid">
+          <article class="product-card" data-category="Chin-Chin" data-product-id="cc1">
+            <div class="product-thumb">
+              <img src="IMG_20260620_143155.jpg" alt="Chin-Chin">
+            </div>
+            <div class="product-body">
+              <span class="product-cat">Chin-Chin</span>
+              <span class="price-tag">₦1,000 <small>/ pack</small></span>
+
+              <div class="carton-selector">
+                <span class="carton-label"></span>
+                <div class="carton-options">
+                  <button type="button" class="carton-btn active" data-cartons="1">1</button>
+                  <button type="button" class="carton-btn" data-cartons="2">2</button>
+                  <button type="button" class="carton-btn" data-cartons="3">3</button>
+                </div>
+                <button type="button" class="bulk-toggle">Bulk order?</button>
+                <div class="bulk-input-wrap" hidden>
+                  <input type="number" class="bulk-input" min="4" placeholder="Enter number of cartons">
+                </div>
+              </div>
+            </div>
+          </article>
+              
+          
+          <article class="product-card" data-category="Cookies" data-product-id="ck1">
+            <div class="product-thumb">
+              <img src="images/classic-chinchin.jpg" alt="Cookies">
+            </div>
+            <div class="product-body">
+              <span class="product-cat">Cookies</span>
+              <span class="price-tag">₦2,000 <small>/ pack</small></span>
+
+              <div class="carton-selector">
+                <span class="carton-label"></span>
+                <div class="carton-options">
+                  <button type="button" class="carton-btn active" data-cartons="1">1</button>
+                  <button type="button" class="carton-btn" data-cartons="2">2</button>
+                  <button type="button" class="carton-btn" data-cartons="3">3</button>
+                </div>
+                <button type="button" class="bulk-toggle">Bulk order?</button>
+                <div class="bulk-input-wrap" hidden>
+                  <input type="number" class="bulk-input" min="4" placeholder="Enter number of cartons">
+                </div>
+              </div>
+            </div>
+          </article>
+        
+    
+          <article class="product-card" data-category="Bread" data-product-id="br1">
+            <div class="product-thumb">
+              <img src="images/classic-chinchin.jpg" alt="Bread snack">
+            </div>
+            <div class="product-body">
+              <span class="product-cat">Bread</span>
+              <span class="price-tag">₦1,500 <small>/ loaf</small></span>
+
+              <div class="carton-selector">
+                <span class="carton-label"></span>
+                <div class="carton-options">
+                  <button type="button" class="carton-btn active" data-cartons="1">1</button>
+                  <button type="button" class="carton-btn" data-cartons="2">2</button>
+                  <button type="button" class="carton-btn" data-cartons="3">3</button>
+                </div>
+                <button type="button" class="bulk-toggle">Bulk order?</button>
+                <div class="bulk-input-wrap" hidden>
+                  <input type="number" class="bulk-input" min="4" placeholder="Enter number of cartons">
+                </div>
+              </div>
+            </div>
+          </article>
+        
+
+    
+          <article class="product-card" data-category="Fruit Juice" data-product-id="fj1">
+            <div class="product-thumb">
+              <img src="images/classic-chinchin.jpg" alt="Fruit Juice">
+            </div>
+            <div class="product-body">
+              <span class="product-cat">Fruit Juice</span>
+              <span class="price-tag">₦1,000 <small>/ bottle</small></span>
+
+              <div class="carton-selector">
+                <span class="carton-label"></span>
+                <div class="carton-options">
+                  <button type="button" class="carton-btn active" data-cartons="1">1</button>
+                  <button type="button" class="carton-btn" data-cartons="2">2</button>
+                  <button type="button" class="carton-btn" data-cartons="3">3</button>
+                </div>
+                <button type="button" class="bulk-toggle">Bulk order?</button>
+                <div class="bulk-input-wrap" hidden>
+                  <input type="number" class="bulk-input" min="4" placeholder="Enter number of cartons">
+                </div>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </div>  
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Why SNACKANDSOLACE</span>
+      <h2>Small-batch, seriously fresh</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <h3>Baked with you in mind</h3>
+        <p>Health is guranteed.</p>
+      </div>
+      <div class="why-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.5 5.5 21l2-7.5L2 9h7z"/></svg>
+        <h3>No preservatives</h3>
+        <p>Real butter, real fruit, honest ingredients — nothing artificial.</p>
+      </div>
+      <div class="why-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="7" width="15" height="10" rx="2"/><path d="M16 10h4l3 3v4h-7z"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg>
+        <h3>Nationwide delivery</h3>
+        <p>Packed to stay crisp and fresh, wherever in Nigeria you are.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--cream-100);">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Loved locally</span>
+      <h2>What customers say</h2>
+    </div>
+    <div class="testimonial-row">
+      <div class="testimonial">
+        <p>"The chin-chin doesn't go soft after two days like every other brand I've tried. My kids finish a pack in one sitting."</p>
+        <strong>— Ngozi A., Abuja</strong>
+      </div>
+      <div class="testimonial">
+        <p>"Ordered the family loaf and cookies for a Sunday brunch. Everything arrived warm-fresh and beautifully packed."</p>
+        <strong>— Tunde O., Lagos</strong>
+      </div>
+      <div class="testimonial">
+        <p>"Zobo juice tastes homemade, not the overly sweet bottled stuff. Now a weekly staple in our fridge."</p>
+        <strong>— Amaka I., Enugu</strong>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="newsletter">
+      <div>
+        <h2>Get first taste of new flavors</h2>
+        <p>Join the list for early access to limited batches and delivery discounts. No spam, just snacks.</p>
+      </div>
+      <div>
+        <form id="newsletter-form" class="newsletter-form">
+          <label for="newsletter-email" class="sr-only" style="position:absolute;left:-9999px;">Email address</label>
+          <input id="newsletter-email" type="email" placeholder="you@example.com" required>
+          <button type="submit" class="btn btn-gold">Subscribe</button>
+        </form>
+        <div id="newsletter-msg" class="form-msg"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="logo" style="color:var(--cream-50);margin-bottom:12px;">SNACKANDSOLACE</div>
+        <p>Freshly made chin-chin, cookies, bread and fruit juice — delivered Worldwide.</p>
+        <div class="social-row">
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
+          <a href="#" aria-label="Twitter/X"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l16 16M20 4L4 20"/></svg></a>
+          <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg></a>
+        </div>
+      </div>
+      <div>
+        <h4>Shop</h4>
+        <ul>
+          <li><a href="homepage.html#shop">All products</a></li>
+          <li><a href="cartpage.html">View cart</a></li>
+          <li><a href="payment.html">Checkout</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="aboutpage.html">About us</a></li>
+          <li><a href="contactpage.html">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Get in touch</h4>
+        <ul>
+          <li>snackandsolace@gmail.com</li>
+          <li>+234 703 7749 735</li>
+          <li>13 Nyejelem close Rumuewhara, Portharcourt, Nigeria</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 SNACKANDSOLACE. All rights reserved.</span>
+      <span>Made with love in Portharcourt, Nigeria.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
