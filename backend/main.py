@@ -58,6 +58,7 @@ class OrderRequest(BaseModel):
     email: EmailStr
     address: str = Field(min_length=5)
     payment_method: Literal["card", "transfer", "paystack"]
+    delivery_fee: int = Field(default=0, ge=0)
     items: list[CartItem] = Field(min_length=1)
 
 
@@ -223,7 +224,7 @@ def calculate_order_total(order: OrderRequest) -> int:
         if product is None:
             raise HTTPException(status_code=400, detail=f"Unknown product: {item.id}")
         total += product["price"] * item.quantity
-    return total
+    return total + order.delivery_fee
 
 
 def send_contact_email(contact: ContactRequest) -> None:

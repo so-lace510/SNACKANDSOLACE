@@ -12,6 +12,22 @@ const API_URL = "http://127.0.0.1:8000/api";
 const categories = ["Chin-Chin", "Cookies", "Bread", "Fruit Juice"];
 const money = (value) => `₦${value.toLocaleString("en-NG")}`;
 
+const getDeliveryFee = (address = "") => {
+  const normalized = String(address).trim().toLowerCase();
+  if (!normalized) return 0;
+
+  const portHarcourtCore = /(rumuewhara|rumuola|rumuomasi|diobu|port harcourt|phc|p\.h\.c|old gra|new gra|g\.r\.a|gra|mgbuoba|ada george|ogbunabali|d-line|dline|rivers state|rivers)/i;
+  const portHarcourtOuter = /(woji|choba|aluu|ozuoba|eneka|oroazi|trans-amadi|eliozu|rumuodomaya|mini|oyigbo|eleme|bonny|obio|obio[/-]akpor|akpor)/i;
+  const interstate = /(lagos|ikeja|lekki|surulere|yaba|ajah|victoria island|abuja|kubwa|gwarinpa|ibadan|abeokuta|enugu|owerri|aba|asaba|benin|warri|kaduna|kano|jos|katsina|sokoto|kogi|calabar|uyo|akwa ibom|bayelsa|delta|edo|onitsha|nnewi)/i;
+  const international = /(uk|united kingdom|usa|united states|america|canada|europe|france|germany|dubai|uae|saudi|qatar|london|new york|toronto|paris|berlin|abroad)/i;
+
+  if (international.test(normalized)) return 45000;
+  if (interstate.test(normalized)) return 9000;
+  if (portHarcourtCore.test(normalized)) return 1500;
+  if (portHarcourtOuter.test(normalized)) return 2500;
+  return 3000;
+};
+
 function readCart() {
   try {
     return JSON.parse(localStorage.getItem(CART_KEY)) || [];
@@ -176,7 +192,10 @@ function Checkout({ cart, setCart, navigate, notify }) {
   const [payment] = useState("paystack");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const deliveryFee = getDeliveryFee(deliveryAddress);
+  const total = subtotal + deliveryFee;
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -228,6 +247,7 @@ function Checkout({ cart, setCart, navigate, notify }) {
       email: form.get("email"),
       address: form.get("address"),
       payment_method: payment,
+      delivery_fee: deliveryFee,
       items: cart.map((item) => ({ id: item.id, quantity: item.qty })),
     };
 
@@ -258,9 +278,9 @@ function Checkout({ cart, setCart, navigate, notify }) {
     }
   };
   if (submitted) return <section><div className="container"><div className="confirmation-box show"><Icon name="check" /><h2>Order placed!</h2><p style={{ color: "var(--brown-700)" }}>Thank you — your tray is being packed. A confirmation has been sent to your email.</p><div className="order-id">Order ID: <strong>SNS-{Date.now().toString().slice(-6)}</strong></div><div style={{ marginTop: 26 }}><button className="btn btn-secondary" onClick={() => navigate("/")}>Back to home</button></div></div></div></section>;
-  return <><PageHero title="Checkout" copy="Enter your delivery details and pay securely with Paystack." navigate={navigate} /><section><div className="container"><div className="cart-layout"><div className="checkout-panel"><form onSubmit={submit}><h3 style={{ marginBottom: 20 }}>Delivery details</h3><div className="form-grid"><Field label="Full name" placeholder="Chioma Eze" /><Field label="Phone number" placeholder="080 000 0000" type="tel" /><Field label="Email address" placeholder="you@example.com" type="email" full /><Field label="Delivery address" placeholder="Street, city, state" textarea full /></div><h3 style={{ margin: "8px 0 16px" }}>Payment method</h3><div className="pay-methods"><label className="pay-method selected"><input type="radio" name="payment-method" checked readOnly />Pay securely with Paystack</label></div>{error && <div className="form-msg error" style={{ marginTop: 12 }}>{error}</div>}<button type="submit" className="btn btn-primary btn-block" style={{ marginTop: 10 }} disabled={!cart.length || submitting}>{submitting ? "Processing..." : "Continue to Paystack"}</button></form></div><aside className="summary-card"><h3>Order summary</h3>{cart.map((item) => <div className="summary-line" key={item.id}><span>{item.name} x {item.qty}</span><span>{money(item.price * item.qty)}</span></div>)}<div className="summary-line total"><span>Total</span><span>{money(subtotal)}</span></div></aside></div></div></section></>;
+  return <><PageHero title="Checkout" copy="Enter your delivery details and pay securely with Paystack." navigate={navigate} /><section><div className="container"><div className="cart-layout"><div className="checkout-panel"><form onSubmit={submit}><h3 style={{ marginBottom: 20 }}>Delivery details</h3><div className="form-grid"><Field label="Full name" placeholder="Chioma Eze" /><Field label="Phone number" placeholder="080 000 0000" type="tel" /><Field label="Email address" placeholder="you@example.com" type="email" full /><Field label="Delivery address" placeholder="Street, city, state" textarea full value={deliveryAddress} onChange={(event) => setDeliveryAddress(event.target.value)} /></div><h3 style={{ margin: "8px 0 16px" }}>Payment method</h3><div className="pay-methods"><label className="pay-method selected"><input type="radio" name="payment-method" checked readOnly />Pay securely with Paystack</label></div>{error && <div className="form-msg error" style={{ marginTop: 12 }}>{error}</div>}<button type="submit" className="btn btn-primary btn-block" style={{ marginTop: 10 }} disabled={!cart.length || submitting}>{submitting ? "Processing..." : "Continue to Paystack"}</button></form></div><aside className="summary-card"><h3>Order summary</h3>{cart.map((item) => <div className="summary-line" key={item.id}><span>{item.name} x {item.qty}</span><span>{money(item.price * item.qty)}</span></div>)}<div className="summary-line"><span>Delivery</span><span>{money(deliveryFee)}</span></div><div className="summary-line total"><span>Total</span><span>{money(total)}</span></div></aside></div></div></section></>;
 }
-function Field({ label, name, placeholder, type = "text", full = false, textarea = false }) { const fieldName = name || ({ "Full name": "full_name", "Phone number": "phone", "Email address": "email", "Delivery address": "address", Subject: "subject", Message: "message" }[label] || label.toLowerCase().replace(/\s+/g, "_")); return <div className={`field ${full ? "full" : ""}`}><label>{label}</label>{textarea ? <textarea name={fieldName} rows="3" placeholder={placeholder} required /> : <input name={fieldName} type={type} placeholder={placeholder} required />}</div>; }
+function Field({ label, name, placeholder, type = "text", full = false, textarea = false, value, onChange }) { const fieldName = name || ({ "Full name": "full_name", "Phone number": "phone", "Email address": "email", "Delivery address": "address", Subject: "subject", Message: "message" }[label] || label.toLowerCase().replace(/\s+/g, "_")); return <div className={`field ${full ? "full" : ""}`}><label>{label}</label>{textarea ? <textarea name={fieldName} rows="3" placeholder={placeholder} required value={value} onChange={onChange} /> : <input name={fieldName} type={type} placeholder={placeholder} required value={value} onChange={onChange} />}</div>; }
 
 function About({ navigate }) { return <><PageHero title="A bite of comfort, a promise of quality" copy="SNACKANDSOLACE was built on a simple idea: healthy, delicious snacks made with real ingredients and genuine care." navigate={navigate} /><section><div className="container"><div className="about-story"><div><span className="eyebrow">Our story</span><h2>From a kitchen project to wholesome treats delivered to you</h2><p>SNACKANDSOLACE was officially registered in 2026 with a single mission — to make healthy snacking effortless, comforting, and utterly delicious.</p><p>Every item is crafted with wholesome ingredients and zero shortcuts, following one golden rule: if it’s not good enough for our own table, it doesn’t leave our kitchen.</p></div><div className="timeline"><Timeline year="2026" title="The First Batch & Launch" text="Our first recipes moved from the kitchen straight to our earliest supporters." /><Timeline year="2026" title="Glowing Reviews & Growing Demand" text="Customer feedback confirmed what we set out to do — create snacks that taste amazing and nourish well." /><Timeline year="Next Step" title="Expanding Our Reach" text="Growing our delivery network so fresh treats reach snack lovers everywhere." /></div></div></div></section><section style={{ background: "var(--cream-100)" }}><div className="container"><div className="section-head"><span className="eyebrow">What we stand for</span><h2>Four rules we don't bend</h2></div><div className="values-grid"><Value title="Real ingredients" text="No preservatives, no shortcuts, ever." /><Value title="Made to order" text="Baked in the days before it ships, not before." /><Value title="Fair to farmers" text="We buy grain and fruit directly from local growers." /><Value title="Careful delivery" text="Packaging built to survive a bumpy road trip." /></div></div></section><section style={{ background: "var(--emerald-900)", color: "var(--cream-50)", textAlign: "center" }}><div className="container"><h2 style={{ color: "var(--cream-50)" }}>Hungry already?</h2><p>Browse the full shop and build your own tray of chin-chin, cookies, bread and juice.</p><button className="btn btn-gold" onClick={() => navigate("/shop")}>Start shopping</button></div></section></>; }
 function Timeline({ year, title, text }) { return <div className="timeline-item"><div className="timeline-year">{year}</div><div><h4>{title}</h4><p>{text}</p></div></div>; }
