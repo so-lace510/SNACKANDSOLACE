@@ -195,7 +195,10 @@ function ReviewSection() {
   useEffect(() => {
     fetch(`${API_URL}/reviews`)
       .then((response) => response.ok ? response.json() : Promise.reject(new Error("Reviews request failed")))
-      .then((sharedReviews) => setReviews(sharedReviews))
+      .then((sharedReviews) => {
+        setReviews(sharedReviews);
+        localStorage.setItem(REVIEWS_KEY, JSON.stringify(sharedReviews));
+      })
       .catch(() => undefined);
   }, []);
 
@@ -216,7 +219,11 @@ function ReviewSection() {
       });
       if (!response.ok) throw new Error("Review submission failed");
       const savedReview = await response.json();
-      setReviews((current) => [savedReview, ...current]);
+      setReviews((current) => {
+        const nextReviews = [savedReview, ...current];
+        localStorage.setItem(REVIEWS_KEY, JSON.stringify(nextReviews));
+        return nextReviews;
+      });
       event.currentTarget.reset();
       setRating(0);
       setOpen(false);
