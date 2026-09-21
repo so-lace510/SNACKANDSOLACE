@@ -19,7 +19,7 @@ For the first deployment, set these values using the real URLs and private keys:
 ```text
 FRONTEND_URL=https://snackandsolace.vercel.app
 ALLOWED_ORIGINS=https://snackandsolace.vercel.app,http://localhost:5173,http://127.0.0.1:5173
-PAYSTACK_CALLBACK_URL=https://snackandsolace.vercel.app/paymentpage.html
+PAYSTACK_CALLBACK_URL=https://snackandsolace.vercel.app/checkout
 VITE_API_URL=https://snackandsolace-api.onrender.com/api
 ```
 
@@ -41,7 +41,7 @@ The production frontend URL is `https://snackandsolace.vercel.app`. Set these Re
 ```text
 FRONTEND_URL=https://snackandsolace.vercel.app
 ALLOWED_ORIGINS=https://snackandsolace.vercel.app,http://localhost:5173,http://127.0.0.1:5173
-PAYSTACK_CALLBACK_URL=https://snackandsolace.vercel.app/paymentpage.html
+PAYSTACK_CALLBACK_URL=https://snackandsolace.vercel.app/checkout
 ```
 
 Save the Render variables and redeploy the backend. Test:
