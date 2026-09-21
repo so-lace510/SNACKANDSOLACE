@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 
 const PRODUCTS = [
   { id: "cc1", name: "Chin-Chin", category: "Chin-Chin", weight: "500g pack", price: 1000, unit: "pack", icon: "chinchin" },
@@ -207,7 +207,7 @@ function ReviewSection() {
     {open && <form className="review-form" onSubmit={submit}>
       <div className="review-form-fields">
         <div className="form-field"><label htmlFor="react-review-name">Your name</label><input id="react-review-name" name="name" type="text" maxLength="60" placeholder="Enter your name" required /></div>
-        <fieldset className="rating-field"><legend>Your rating</legend><div className="star-rating" role="radiogroup" aria-label="Choose a star rating">{[5, 4, 3, 2, 1].map((value) => <React.Fragment key={value}><input id={`react-star-${value}`} name="rating" type="radio" value={value} checked={rating === value} onChange={() => setRating(value)} required={value === 1} /><label htmlFor={`react-star-${value}`} title={`${value} stars`}>★</label></React.Fragment>)}</div></fieldset>
+        <fieldset className="rating-field"><legend>Your rating</legend><div className="star-rating" role="radiogroup" aria-label="Choose a star rating">{[5, 4, 3, 2, 1].map((value) => <Fragment key={value}><input id={`react-star-${value}`} name="rating" type="radio" value={value} checked={rating === value} onChange={() => setRating(value)} required={value === 1} /><label htmlFor={`react-star-${value}`} title={`${value} stars`}>★</label></Fragment>)}</div></fieldset>
         <div className="form-field"><label htmlFor="react-review-message">Your review</label><textarea id="react-review-message" name="message" rows="5" maxLength="500" placeholder="What did you enjoy?" required /></div>
       </div>
       <div className="review-form-actions"><button type="submit" className="btn btn-primary">Submit review</button><button type="button" className="btn btn-secondary" onClick={() => { setOpen(false); setRating(0); }}>Cancel</button></div>
