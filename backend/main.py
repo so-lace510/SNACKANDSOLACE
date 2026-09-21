@@ -63,10 +63,17 @@ class OrderRequest(BaseModel):
     full_name: str = Field(min_length=2)
     phone: str = Field(min_length=7)
     email: EmailStr
-    address: str = Field(min_length=5)
+    address: str = ""
     payment_method: Literal["card", "transfer", "paystack"]
+    fulfillment_method: Literal["delivery", "pickup"] = "delivery"
     delivery_fee: int = Field(default=0, ge=0)
     items: list[CartItem] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_fulfillment_details(self):
+        if self.fulfillment_method == "delivery" and len(self.address.strip()) < 5:
+            raise ValueError("A delivery address is required for delivery orders")
+        return self
 
 
 class PaystackVerifyResponse(BaseModel):
@@ -249,7 +256,7 @@ def calculate_order_total(order: OrderRequest) -> int:
         if product is None:
             raise HTTPException(status_code=400, detail=f"Unknown product: {item.id}")
         total += product["price"] * item.quantity
-    return total + calculate_delivery_fee(order.address)
+    return total + (calculate_delivery_fee(order.address) if order.fulfillment_method == "delivery" else 0)
 
 
 def send_contact_email(contact: ContactRequest) -> None:
@@ -395,6 +402,7 @@ def initialize_paystack_payment(order: OrderRequest):
             "full_name": order.full_name,
             "phone": order.phone,
             "address": order.address,
+            "fulfillment_method": order.fulfillment_method,
             "items": [item.model_dump() for item in order.items],
         },
     }

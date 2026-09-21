@@ -8,8 +8,7 @@ const PRODUCTS = [
 ];
 
 const CART_KEY = "adunbites_cart";
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://127.0.0.1:8000/api" : "");
-const categories = ["Chin-Chin", "Cookies", "Bread", "Fruit Juice"];
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://127.0.0.1:8000/api" : "/api");
 const money = (value) => `₦${value.toLocaleString("en-NG")}`;
 
 const getDeliveryFee = (address = "") => {
@@ -139,7 +138,7 @@ function App() {
 function Header({ path, cartCount, navigate, mobileNav, setMobileNav }) {
   const link = (to, label, matches) => <li><a href={to} aria-current={matches ? "page" : undefined} onClick={(event) => { event.preventDefault(); navigate(to); }}>{label}</a></li>;
   return <header className="site-header"><nav className="nav-bar">
-    <a href="/" className="logo" onClick={(event) => { event.preventDefault(); navigate("/"); }}><img className="logo-image" src="/snackandsolace-logo.jpeg" alt="SNACKANDSOLACE — Treats that feels like a hug" /></a>
+    <a href="/" className="logo" onClick={(event) => { event.preventDefault(); navigate("/"); }}><img className="logo-image" src="/snackandsolace-logo.jpeg" alt="" /><span>SNACKANDSOLACE</span></a>
     <button className="nav-toggle" aria-label="Toggle menu" aria-expanded={mobileNav} onClick={() => setMobileNav((open) => !open)}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M4 12h16M4 18h16" /></svg></button>
     <ul className={`nav-links ${mobileNav ? "open" : ""}`}>{link("/homepage.html", "Home", path === "/" || path === "/homepage.html")}{link("/aboutpage.html", "About", path.includes("about"))}{link("/paymentpage.html", "Checkout", path.includes("checkout") || path.includes("payment"))}{link("/contactpage.html", "Contact", path.includes("contact"))}</ul>
     <div className="nav-actions"><a href="/cartpage.html" className="cart-pill" onClick={(event) => { event.preventDefault(); navigate("/cartpage.html"); }}><Icon name="cart" /> Cart <span id="cart-count">{cartCount}</span></a></div>
@@ -151,9 +150,7 @@ function PageHero({ title, copy, navigate }) {
 }
 
 function Home({ products, addToCart, navigate }) {
-  const [filter, setFilter] = useState("all");
   const [slide, setSlide] = useState(0);
-  const visible = filter === "all" ? products : products.filter((product) => product.category === filter);
   useEffect(() => { const timer = window.setInterval(() => setSlide((current) => (current + 1) % 3), 5000); return () => window.clearInterval(timer); }, []);
   const featured = [
     ["Freshly baked", "Crunchy chin-chin", "Golden, airy and perfect for sharing with every cup of tea.", "hero-card-chinchin"],
@@ -162,7 +159,7 @@ function Home({ products, addToCart, navigate }) {
   ];
   return <>
     <section className="hero"><div className="container"><div className="hero-copy"><span className="eyebrow" style={{ color: "var(--gold-500)" }}>Treats that feel like a hug</span><h1>Everyday snacks, made <em>for comfort</em> — made delicious.</h1><p className="lede">From crunchy chin-chin to bread snacks and cold-pressed juice, SNACKANDSOLACE brings the taste of a proper kitchen to your doorstep.</p><div className="hero-ctas"><a href="#categories" className="btn btn-primary" onClick={(event) => { event.preventDefault(); document.getElementById("categories")?.scrollIntoView({ behavior: "smooth" }); }}>Shop the tray</a><button className="btn btn-secondary" onClick={() => navigate("/about")}>Our story</button></div></div><div className="hero-tray"><div className="hero-carousel" aria-label="Featured snacks slideshow">{featured.map((item, index) => <div className={`hero-slide ${index === slide ? "active" : ""}`} key={item[1]}><div className={`hero-slide-card ${item[3]}`}><span className="hero-slide-tag">{item[0]}</span><h3>{item[1]}</h3><p>{item[2]}</p></div></div>)}</div><div className="hero-dots">{featured.map((item, index) => <button key={item[1]} className={`hero-dot ${index === slide ? "active" : ""}`} aria-label={`Show slide ${index + 1}`} onClick={() => setSlide(index)} />)}</div></div></div></section>
-    <section id="categories"><div className="container"><div className="section-head"><span className="eyebrow">What we make</span><h2>Four cravings, one basket</h2></div><div className="category-row">{categories.map((category) => <button className="category-tag" key={category} onClick={() => setFilter(category)}><ProductMark type={category === "Fruit Juice" ? "juice" : category === "Bread" ? "bread" : category === "Cookies" ? "cookie" : "chinchin"} /><h3>{category}</h3><span>Browse treats</span></button>)}</div><div className="shop-heading"><div><span className="eyebrow">The full shop</span><h2>{filter === "all" ? "Made for your snack drawer" : filter}</h2></div><button className="btn btn-secondary" onClick={() => setFilter("all")}>Show everything</button></div><div className="product-grid" id="shop">{visible.map((product) => <ProductCard key={product.id} product={product} addToCart={addToCart} />)}</div></div></section>
+    <section id="categories"><div className="container"><div className="section-head"><span className="eyebrow">The full shop</span><h2>Made for your snack drawer</h2></div><div className="product-grid" id="shop">{products.map((product) => <ProductCard key={product.id} product={product} addToCart={addToCart} />)}</div></div></section>
     <section><div className="container"><div className="section-head"><span className="eyebrow">Why SNACKANDSOLACE</span><h2>Small-batch, seriously fresh</h2></div><div className="why-grid"><Why icon="clock" title="Baked with you in mind" copy="Made in small batches with care." /><Why icon="star" title="No preservatives" copy="Real butter, real fruit, honest ingredients — nothing artificial." /><Why icon="truck" title="Nationwide delivery" copy="Packed to stay crisp and fresh, wherever in Nigeria you are." /></div></div></section>
     <section style={{ background: "var(--cream-100)" }}><div className="container"><div className="section-head"><span className="eyebrow">Loved locally</span><h2>What customers say</h2></div><div className="testimonial-row"><Testimonial text="The chin-chin doesn't go soft after two days like every other brand I've tried. My kids finish a pack in one sitting." name="Ngozi A., Abuja" /><Testimonial text="Ordered the family loaf and cookies for a Sunday brunch. Everything arrived warm-fresh and beautifully packed." name="Tunde O., Lagos" /><Testimonial text="Zobo juice tastes homemade, not the overly sweet bottled stuff. Now a weekly staple in our fridge." name="Amaka I., Enugu" /></div></div></section>
     <section><div className="container"><div className="newsletter"><div><h2>Get first taste of new flavors</h2><p>Join the list for early access to limited batches and delivery discounts. No spam, just snacks.</p></div><Newsletter /></div></div></section>
@@ -201,13 +198,14 @@ function Checkout({ cart, setCart, navigate, notify }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [fulfillmentMethod, setFulfillmentMethod] = useState("delivery");
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const deliveryFee = getDeliveryFee(deliveryAddress);
+  const deliveryFee = fulfillmentMethod === "delivery" ? getDeliveryFee(deliveryAddress) : 0;
   const total = subtotal + deliveryFee;
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const reference = params.get("reference");
+    const reference = params.get("reference") || params.get("trxref");
     if (!reference) return;
 
     const pendingOrder = sessionStorage.getItem("pending_paystack_order");
@@ -253,7 +251,8 @@ function Checkout({ cart, setCart, navigate, notify }) {
       full_name: form.get("full_name"),
       phone: form.get("phone"),
       email: form.get("email"),
-      address: form.get("address"),
+      address: fulfillmentMethod === "pickup" ? "Pickup" : form.get("address"),
+      fulfillment_method: fulfillmentMethod,
       payment_method: payment,
       delivery_fee: deliveryFee,
       items: cart.map((item) => ({ id: item.id, quantity: item.qty })),
@@ -290,7 +289,7 @@ function Checkout({ cart, setCart, navigate, notify }) {
     }
   };
   if (submitted) return <section><div className="container"><div className="confirmation-box show"><Icon name="check" /><h2>Order placed!</h2><p style={{ color: "var(--brown-700)" }}>Thank you — your tray is being packed. A confirmation has been sent to your email.</p><div className="order-id">Order ID: <strong>SNS-{Date.now().toString().slice(-6)}</strong></div><div style={{ marginTop: 26 }}><button className="btn btn-secondary" onClick={() => navigate("/")}>Back to home</button></div></div></div></section>;
-  return <><PageHero title="Checkout" copy="Enter your delivery details and pay securely with Paystack." navigate={navigate} /><section><div className="container"><div className="cart-layout"><div className="checkout-panel"><form onSubmit={submit}><h3 style={{ marginBottom: 20 }}>Delivery details</h3><div className="form-grid"><Field label="Full name" placeholder="Chioma Eze" /><Field label="Phone number" placeholder="080 000 0000" type="tel" /><Field label="Email address" placeholder="you@example.com" type="email" full /><Field label="Delivery address" placeholder="Street, city, state" textarea full value={deliveryAddress} onChange={(event) => setDeliveryAddress(event.target.value)} /></div><h3 style={{ margin: "8px 0 16px" }}>Payment method</h3><div className="pay-methods"><label className="pay-method selected"><input type="radio" name="payment-method" checked readOnly />Pay securely with Paystack</label></div>{error && <div className="form-msg error" style={{ marginTop: 12 }}>{error}</div>}<button type="submit" className="btn btn-primary btn-block" style={{ marginTop: 10 }} disabled={!cart.length || submitting}>{submitting ? "Processing..." : "Continue to Paystack"}</button></form></div><aside className="summary-card"><h3>Order summary</h3>{cart.map((item) => <div className="summary-line" key={item.id}><span>{item.name} x {item.qty}</span><span>{money(item.price * item.qty)}</span></div>)}<div className="summary-line"><span>Delivery</span><span>{money(deliveryFee)}</span></div><div className="summary-line total"><span>Total</span><span>{money(total)}</span></div></aside></div></div></section></>;
+  return <><PageHero title="Checkout" copy="Choose delivery or pickup, then pay securely with Paystack." navigate={navigate} /><section><div className="container"><div className="cart-layout"><div className="checkout-panel"><form onSubmit={submit}><h3 style={{ marginBottom: 20 }}>How would you like to receive your order?</h3><div className="delivery-options"><label className={`delivery-option ${fulfillmentMethod === "delivery" ? "selected" : ""}`}><input type="radio" name="fulfillment-method" value="delivery" checked={fulfillmentMethod === "delivery"} onChange={() => setFulfillmentMethod("delivery")} /><span><strong>Delivery</strong><small>We bring it to your address</small></span></label><label className={`delivery-option ${fulfillmentMethod === "pickup" ? "selected" : ""}`}><input type="radio" name="fulfillment-method" value="pickup" checked={fulfillmentMethod === "pickup"} onChange={() => setFulfillmentMethod("pickup")} /><span><strong>Pickup</strong><small>Collect your order from us</small></span></label></div><h3 style={{ margin: "26px 0 20px" }}>Your details</h3><div className="form-grid"><Field label="Full name" placeholder="Chioma Eze" /><Field label="Phone number" placeholder="080 000 0000" type="tel" /><Field label="Email address" placeholder="you@example.com" type="email" full />{fulfillmentMethod === "delivery" ? <Field label="Delivery address" placeholder="Street, city, state" textarea full value={deliveryAddress} onChange={(event) => setDeliveryAddress(event.target.value)} /> : <div className="pickup-note full">Pickup location details will be shared after payment.</div>}</div><h3 style={{ margin: "8px 0 16px" }}>Payment method</h3><div className="pay-methods"><label className="pay-method selected"><input type="radio" name="payment-method" checked readOnly />Pay securely with Paystack</label></div>{error && <div className="form-msg error" style={{ marginTop: 12 }}>{error}</div>}<button type="submit" className="btn btn-primary btn-block" style={{ marginTop: 10 }} disabled={!cart.length || submitting}>{submitting ? "Processing..." : "Continue to Paystack"}</button></form></div><aside className="summary-card"><h3>Order summary</h3>{cart.map((item) => <div className="summary-line" key={item.id}><span>{item.name} x {item.qty}</span><span>{money(item.price * item.qty)}</span></div>)}<div className="summary-line"><span>{fulfillmentMethod === "delivery" ? "Delivery" : "Pickup"}</span><span>{money(deliveryFee)}</span></div><div className="summary-line total"><span>Total</span><span>{money(total)}</span></div></aside></div></div></section></>;
 }
 function Field({ label, name, placeholder, type = "text", full = false, textarea = false, value, onChange }) { const fieldName = name || ({ "Full name": "full_name", "Phone number": "phone", "Email address": "email", "Delivery address": "address", Subject: "subject", Message: "message" }[label] || label.toLowerCase().replace(/\s+/g, "_")); return <div className={`field ${full ? "full" : ""}`}><label>{label}</label>{textarea ? <textarea name={fieldName} rows="3" placeholder={placeholder} required value={value} onChange={onChange} /> : <input name={fieldName} type={type} placeholder={placeholder} required value={value} onChange={onChange} />}</div>; }
 
