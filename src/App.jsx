@@ -39,6 +39,12 @@ const getDeliveryFee = (address = "") => {
 
 function readCart() {
   try {
+    const params = new URLSearchParams(window.location.search);
+    const hasPaymentReturn = params.has("reference") || params.has("trxref");
+    if (hasPaymentReturn && sessionStorage.getItem("pending_paystack_order")) {
+      localStorage.removeItem(CART_KEY);
+      return [];
+    }
     return JSON.parse(localStorage.getItem(CART_KEY)) || [];
   } catch {
     return [];
@@ -313,6 +319,8 @@ function Checkout({ cart, clearCart, navigate, notify, fulfillmentMethod }) {
 
     const pendingOrder = sessionStorage.getItem("pending_paystack_order");
     if (!pendingOrder) return;
+
+    clearCart();
 
     (async () => {
       try {
