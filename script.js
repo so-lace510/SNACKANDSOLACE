@@ -322,10 +322,12 @@ function escapeHtml(value) {
 function renderReviews() {
   const list = document.getElementById("review-list");
   const count = document.getElementById("review-count");
-  if (!list || !count) return;
+  const reviewListWrap = document.getElementById("review-list-wrap");
+  if (!list || !count || !reviewListWrap) return;
   const reviews = storage.get(REVIEWS_KEY) || [];
   count.textContent = `${reviews.length} review${reviews.length === 1 ? "" : "s"}`;
-  list.innerHTML = reviews.length ? reviews.map((review) => `
+  reviewListWrap.hidden = reviews.length === 0;
+  list.innerHTML = reviews.map((review) => `
     <article class="review-card">
       <div class="review-card-top">
         <strong>${escapeHtml(review.name)}</strong>
@@ -333,13 +335,26 @@ function renderReviews() {
       </div>
       <p>${escapeHtml(review.message)}</p>
     </article>
-  `).join("") : '<p class="review-empty">Be the first to share your experience.</p>';
+  `).join("");
 }
 
 function initReviewForm() {
   const form = document.getElementById("review-form");
   if (!form) return;
+  const openButton = document.getElementById("show-review-form");
+  const cancelButton = document.getElementById("cancel-review");
   renderReviews();
+  openButton?.addEventListener("click", () => {
+    form.hidden = false;
+    openButton.hidden = true;
+    document.getElementById("review-name")?.focus();
+  });
+  cancelButton?.addEventListener("click", () => {
+    form.reset();
+    form.hidden = true;
+    openButton.hidden = false;
+    document.getElementById("review-msg").textContent = "";
+  });
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const data = new FormData(form);
@@ -352,6 +367,8 @@ function initReviewForm() {
     storage.set(REVIEWS_KEY, reviews);
     renderReviews();
     form.reset();
+    form.hidden = true;
+    openButton.hidden = false;
     document.getElementById("review-msg").textContent = "Thanks for sharing your review!";
   });
 }

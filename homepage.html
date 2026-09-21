@@ -224,12 +224,19 @@
 
 <section style="background:var(--cream-100);">
   <div class="container">
-    <div class="section-head">
-      <span class="eyebrow">Your experience matters</span>
-      <h2>Share your review</h2>
+    <div class="review-widget">
+      <div>
+        <span class="eyebrow">Your experience matters</span>
+        <h2>How did we do?</h2>
+        <p>Leave a quick rating and tell us about your SNACKANDSOLACE treats.</p>
+      </div>
+      <div class="review-launcher">
+        <div class="launcher-stars" aria-label="Five star rating">&#9733; &#9733; &#9733; &#9733; &#9733;</div>
+        <button id="show-review-form" type="button" class="btn btn-primary">Write a review</button>
+      </div>
     </div>
-    <div class="review-layout">
-      <form id="review-form" class="review-form">
+    <form id="review-form" class="review-form" hidden>
+      <div class="review-form-fields">
         <div class="form-field">
           <label for="review-name">Your name</label>
           <input id="review-name" name="name" type="text" maxlength="60" placeholder="Enter your name" required>
@@ -253,18 +260,19 @@
           <label for="review-message">Your review</label>
           <textarea id="review-message" name="message" rows="5" maxlength="500" placeholder="What did you enjoy?" required></textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Submit review</button>
-        <div id="review-msg" class="form-msg" role="status" aria-live="polite"></div>
-      </form>
-      <div class="review-list-wrap">
-        <div class="review-list-head">
-          <h3>Customer reviews</h3>
-          <span id="review-count">0 reviews</span>
-        </div>
-        <div id="review-list" class="review-list">
-          <p class="review-empty">Be the first to share your experience.</p>
-        </div>
       </div>
+      <div class="review-form-actions">
+        <button type="submit" class="btn btn-primary">Submit review</button>
+        <button id="cancel-review" type="button" class="btn btn-secondary">Cancel</button>
+        <div id="review-msg" class="form-msg" role="status" aria-live="polite"></div>
+      </div>
+    </form>
+    <div id="review-list-wrap" class="review-list-wrap" hidden>
+      <div class="review-list-head">
+        <h3>Customer reviews</h3>
+        <span id="review-count">0 reviews</span>
+      </div>
+      <div id="review-list" class="review-list"></div>
     </div>
   </div>
 </section>
