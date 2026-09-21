@@ -8,6 +8,7 @@ const PRODUCTS = [
 ];
 
 const CART_KEY = "adunbites_cart";
+const FULFILLMENT_KEY = "adunbites_fulfillment";
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://127.0.0.1:8000/api" : "/api");
 const money = (value) => `₦${value.toLocaleString("en-NG")}`;
 
@@ -42,6 +43,10 @@ function readCart() {
   }
 }
 
+function readFulfillmentMethod() {
+  return localStorage.getItem(FULFILLMENT_KEY) === "pickup" ? "pickup" : "delivery";
+}
+
 function Icon({ name }) {
   const paths = {
     cart: <><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" /></>,
@@ -64,10 +69,15 @@ function App() {
   const [mobileNav, setMobileNav] = useState(false);
   const [shopTarget, setShopTarget] = useState(false);
   const [products, setProducts] = useState(PRODUCTS);
+  const [fulfillmentMethod, setFulfillmentMethod] = useState(readFulfillmentMethod);
 
   useEffect(() => {
     localStorage.setItem(CART_KEY, JSON.stringify(cart));
   }, [cart]);
+
+  useEffect(() => {
+    localStorage.setItem(FULFILLMENT_KEY, fulfillmentMethod);
+  }, [fulfillmentMethod]);
 
   useEffect(() => {
     if (!API_URL) return;
@@ -125,8 +135,8 @@ function App() {
   return <>
     <Header path={path} cartCount={cartCount} navigate={navigate} mobileNav={mobileNav} setMobileNav={setMobileNav} />
     {path === "/" || path === "/homepage.html" ? <Home products={products} addToCart={addToCart} navigate={navigate} /> : null}
-    {path === "/cart" || path === "/cartpage.html" ? <Cart cart={cart} updateQty={updateQty} removeItem={removeItem} navigate={navigate} /> : null}
-    {path === "/checkout" || path === "/paymentpage.html" ? <Checkout cart={cart} setCart={setCart} navigate={navigate} notify={notify} /> : null}
+    {path === "/cart" || path === "/cartpage.html" ? <Cart cart={cart} updateQty={updateQty} removeItem={removeItem} navigate={navigate} fulfillmentMethod={fulfillmentMethod} setFulfillmentMethod={setFulfillmentMethod} /> : null}
+    {path === "/checkout" || path === "/paymentpage.html" ? <Checkout cart={cart} setCart={setCart} navigate={navigate} notify={notify} fulfillmentMethod={fulfillmentMethod} /> : null}
     {path === "/about" || path === "/aboutpage.html" ? <About navigate={navigate} /> : null}
     {path === "/contact" || path === "/contactpage.html" ? <BackendContact navigate={navigate} /> : null}
     {path === "/admin" || path === "/adminpage.html" ? <AdminOrders /> : null}
@@ -138,7 +148,7 @@ function App() {
 function Header({ path, cartCount, navigate, mobileNav, setMobileNav }) {
   const link = (to, label, matches) => <li><a href={to} aria-current={matches ? "page" : undefined} onClick={(event) => { event.preventDefault(); navigate(to); }}>{label}</a></li>;
   return <header className="site-header"><nav className="nav-bar">
-    <a href="/" className="logo" onClick={(event) => { event.preventDefault(); navigate("/"); }}><img className="logo-image" src="/snackandsolace-logo.jpeg" alt="" /><span>SNACKANDSOLACE</span></a>
+    <a href="/" className="logo" onClick={(event) => { event.preventDefault(); navigate("/"); }}><img className="logo-image" src="/snackandsolacelogo.png" alt="" /><span>SNACKANDSOLACE</span></a>
     <button className="nav-toggle" aria-label="Toggle menu" aria-expanded={mobileNav} onClick={() => setMobileNav((open) => !open)}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M4 12h16M4 18h16" /></svg></button>
     <ul className={`nav-links ${mobileNav ? "open" : ""}`}>{link("/homepage.html", "Home", path === "/" || path === "/homepage.html")}{link("/aboutpage.html", "About", path.includes("about"))}{link("/paymentpage.html", "Checkout", path.includes("checkout") || path.includes("payment"))}{link("/contactpage.html", "Contact", path.includes("contact"))}</ul>
     <div className="nav-actions"><a href="/cartpage.html" className="cart-pill" onClick={(event) => { event.preventDefault(); navigate("/cartpage.html"); }}><Icon name="cart" /> Cart <span id="cart-count">{cartCount}</span></a></div>
@@ -186,19 +196,18 @@ function Why({ icon, title, copy }) { return <div className="why-card"><Icon nam
 function Testimonial({ text, name }) { return <div className="testimonial"><p>"{text}"</p><strong>— {name}</strong></div>; }
 function Newsletter() { const [email, setEmail] = useState(""); const [message, setMessage] = useState(""); const submit = (event) => { event.preventDefault(); setMessage(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? "You're on the list — watch your inbox for fresh drops!" : "Please enter a valid email address."); }; return <div><form className="newsletter-form" onSubmit={submit}><input type="email" placeholder="you@example.com" value={email} onChange={(event) => setEmail(event.target.value)} required /><button type="submit" className="btn btn-gold">Subscribe</button></form>{message && <div className="form-msg success">{message}</div>}</div>; }
 
-function Cart({ cart, updateQty, removeItem, navigate }) {
+function Cart({ cart, updateQty, removeItem, navigate, fulfillmentMethod, setFulfillmentMethod }) {
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-  return <><PageHero title="Your cart" copy="Review your tray before checkout." navigate={navigate} /><section><div className="container">{cart.length ? <div className="cart-layout"><table className="cart-table"><thead><tr><th>Item</th><th>Price</th><th>Quantity</th><th>Subtotal</th><th /></tr></thead><tbody>{cart.map((item) => <tr key={item.id}><td><div className="cart-item-info"><div className="cart-item-thumb"><ProductMark type={PRODUCTS.find((product) => product.id === item.id)?.icon || "cookie"} /></div><div><h4>{item.name}</h4><span>Freshly packed</span></div></div></td><td>{money(item.price)}</td><td><div className="qty-control"><button onClick={() => updateQty(item.id, -1)}>-</button><span>{item.qty}</span><button onClick={() => updateQty(item.id, 1)}>+</button></div></td><td>{money(item.price * item.qty)}</td><td><button className="remove-btn" onClick={() => removeItem(item.id)}>Remove</button></td></tr>)}</tbody></table><Summary subtotal={subtotal} navigate={navigate} /></div> : <div className="empty-state"><Icon name="cart" /><h3>Your tray is empty</h3><p style={{ color: "var(--brown-500)" }}>Nothing here yet — go pick some chin-chin, cookies, bread or juice.</p><button className="btn btn-primary" onClick={() => navigate("/")}>Browse the shop</button></div>}</div></section></>;
+  return <><PageHero title="Your cart" copy="Review your tray before checkout." navigate={navigate} /><section><div className="container">{cart.length ? <div className="cart-layout"><div><table className="cart-table"><thead><tr><th>Item</th><th>Price</th><th>Quantity</th><th>Subtotal</th><th /></tr></thead><tbody>{cart.map((item) => <tr key={item.id}><td><div className="cart-item-info"><div className="cart-item-thumb"><ProductMark type={PRODUCTS.find((product) => product.id === item.id)?.icon || "cookie"} /></div><div><h4>{item.name}</h4><span>Freshly packed</span></div></div></td><td>{money(item.price)}</td><td><div className="qty-control"><button onClick={() => updateQty(item.id, -1)}>-</button><span>{item.qty}</span><button onClick={() => updateQty(item.id, 1)}>+</button></div></td><td>{money(item.price * item.qty)}</td><td><button className="remove-btn" onClick={() => removeItem(item.id)}>Remove</button></td></tr>)}</tbody></table><div className="fulfillment-panel"><h3>How would you like to receive your order?</h3><div className="delivery-options"><label className={`delivery-option ${fulfillmentMethod === "delivery" ? "selected" : ""}`}><input type="radio" name="cart-fulfillment" checked={fulfillmentMethod === "delivery"} onChange={() => setFulfillmentMethod("delivery")} /><span><strong>Delivery</strong><small>Delivery fee calculated from your address</small></span></label><label className={`delivery-option ${fulfillmentMethod === "pickup" ? "selected" : ""}`}><input type="radio" name="cart-fulfillment" checked={fulfillmentMethod === "pickup"} onChange={() => setFulfillmentMethod("pickup")} /><span><strong>Pickup</strong><small>No delivery fee</small></span></label></div></div></div><Summary subtotal={subtotal} navigate={navigate} fulfillmentMethod={fulfillmentMethod} /></div> : <div className="empty-state"><Icon name="cart" /><h3>Your tray is empty</h3><p style={{ color: "var(--brown-500)" }}>Nothing here yet — go pick some chin-chin, cookies, bread or juice.</p><button className="btn btn-primary" onClick={() => navigate("/shop")}>Browse the shop</button></div>}</div></section></>;
 }
-function Summary({ subtotal, navigate }) { return <aside className="summary-card"><h3>Order summary</h3><div className="summary-line"><span>Subtotal</span><span>{money(subtotal)}</span></div><div className="summary-line"><span>Delivery</span><span>{money(0)}</span></div><div className="summary-line total"><span>Total</span><span>{money(subtotal)}</span></div><button className="btn btn-primary btn-block" style={{ marginTop: 20 }} onClick={() => navigate("/checkout")}>Proceed to checkout</button><button className="btn btn-secondary btn-block" style={{ marginTop: 12 }} onClick={() => navigate("/")}>Continue shopping</button></aside>; }
+function Summary({ subtotal, navigate, fulfillmentMethod }) { return <aside className="summary-card"><h3>Order summary</h3><div className="summary-line"><span>Subtotal</span><span>{money(subtotal)}</span></div><div className="summary-line"><span>{fulfillmentMethod === "delivery" ? "Delivery" : "Pickup"}</span><span>{fulfillmentMethod === "delivery" ? "Calculated at checkout" : money(0)}</span></div><div className="summary-note">The exact delivery fee is confirmed from your address at checkout.</div><div className="summary-line total"><span>Subtotal</span><span>{money(subtotal)}</span></div><button className="btn btn-primary btn-block" style={{ marginTop: 20 }} onClick={() => navigate("/checkout")}>Proceed to checkout</button><button className="btn btn-secondary btn-block" style={{ marginTop: 12 }} onClick={() => navigate("/shop")}>Continue shopping</button></aside>; }
 
-function Checkout({ cart, setCart, navigate, notify }) {
+function Checkout({ cart, setCart, navigate, notify, fulfillmentMethod }) {
   const [submitted, setSubmitted] = useState(false);
   const [payment] = useState("paystack");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [deliveryAddress, setDeliveryAddress] = useState("");
-  const [fulfillmentMethod, setFulfillmentMethod] = useState("delivery");
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   const deliveryFee = fulfillmentMethod === "delivery" ? getDeliveryFee(deliveryAddress) : 0;
   const total = subtotal + deliveryFee;
@@ -289,7 +298,7 @@ function Checkout({ cart, setCart, navigate, notify }) {
     }
   };
   if (submitted) return <section><div className="container"><div className="confirmation-box show"><Icon name="check" /><h2>Order placed!</h2><p style={{ color: "var(--brown-700)" }}>Thank you — your tray is being packed. A confirmation has been sent to your email.</p><div className="order-id">Order ID: <strong>SNS-{Date.now().toString().slice(-6)}</strong></div><div style={{ marginTop: 26 }}><button className="btn btn-secondary" onClick={() => navigate("/")}>Back to home</button></div></div></div></section>;
-  return <><PageHero title="Checkout" copy="Choose delivery or pickup, then pay securely with Paystack." navigate={navigate} /><section><div className="container"><div className="cart-layout"><div className="checkout-panel"><form onSubmit={submit}><h3 style={{ marginBottom: 20 }}>How would you like to receive your order?</h3><div className="delivery-options"><label className={`delivery-option ${fulfillmentMethod === "delivery" ? "selected" : ""}`}><input type="radio" name="fulfillment-method" value="delivery" checked={fulfillmentMethod === "delivery"} onChange={() => setFulfillmentMethod("delivery")} /><span><strong>Delivery</strong><small>We bring it to your address</small></span></label><label className={`delivery-option ${fulfillmentMethod === "pickup" ? "selected" : ""}`}><input type="radio" name="fulfillment-method" value="pickup" checked={fulfillmentMethod === "pickup"} onChange={() => setFulfillmentMethod("pickup")} /><span><strong>Pickup</strong><small>Collect your order from us</small></span></label></div><h3 style={{ margin: "26px 0 20px" }}>Your details</h3><div className="form-grid"><Field label="Full name" placeholder="Chioma Eze" /><Field label="Phone number" placeholder="080 000 0000" type="tel" /><Field label="Email address" placeholder="you@example.com" type="email" full />{fulfillmentMethod === "delivery" ? <Field label="Delivery address" placeholder="Street, city, state" textarea full value={deliveryAddress} onChange={(event) => setDeliveryAddress(event.target.value)} /> : <div className="pickup-note full">Pickup location details will be shared after payment.</div>}</div><h3 style={{ margin: "8px 0 16px" }}>Payment method</h3><div className="pay-methods"><label className="pay-method selected"><input type="radio" name="payment-method" checked readOnly />Pay securely with Paystack</label></div>{error && <div className="form-msg error" style={{ marginTop: 12 }}>{error}</div>}<button type="submit" className="btn btn-primary btn-block" style={{ marginTop: 10 }} disabled={!cart.length || submitting}>{submitting ? "Processing..." : "Continue to Paystack"}</button></form></div><aside className="summary-card"><h3>Order summary</h3>{cart.map((item) => <div className="summary-line" key={item.id}><span>{item.name} x {item.qty}</span><span>{money(item.price * item.qty)}</span></div>)}<div className="summary-line"><span>{fulfillmentMethod === "delivery" ? "Delivery" : "Pickup"}</span><span>{money(deliveryFee)}</span></div><div className="summary-line total"><span>Total</span><span>{money(total)}</span></div></aside></div></div></section></>;
+  return <><PageHero title="Checkout" copy="Complete your details and pay securely with Paystack." navigate={navigate} /><section><div className="container"><div className="cart-layout"><div className="checkout-panel"><form onSubmit={submit}><div className="selected-fulfillment"><strong>{fulfillmentMethod === "delivery" ? "Delivery selected" : "Pickup selected"}</strong><span><button type="button" className="text-button" onClick={() => navigate("/cart")}>Change in cart</button></span></div><h3 style={{ margin: "26px 0 20px" }}>Your details</h3><div className="form-grid"><Field label="Full name" placeholder="Chioma Eze" /><Field label="Phone number" placeholder="080 000 0000" type="tel" /><Field label="Email address" placeholder="you@example.com" type="email" full />{fulfillmentMethod === "delivery" ? <Field label="Delivery address" placeholder="Street, city, state" textarea full value={deliveryAddress} onChange={(event) => setDeliveryAddress(event.target.value)} /> : <div className="pickup-note full">Pickup address: 13 Nyejelem close, Rumuewhara, Portharcourt, Nigeria</div>}</div><h3 style={{ margin: "8px 0 16px" }}>Payment method</h3><div className="pay-methods"><label className="pay-method selected"><input type="radio" name="payment-method" checked readOnly />Pay securely with Paystack</label></div>{error && <div className="form-msg error" style={{ marginTop: 12 }}>{error}</div>}<button type="submit" className="btn btn-primary btn-block" style={{ marginTop: 10 }} disabled={!cart.length || submitting}>{submitting ? "Processing..." : "Continue to Paystack"}</button></form></div><aside className="summary-card"><h3>Order summary</h3>{cart.map((item) => <div className="summary-line" key={item.id}><span>{item.name} x {item.qty}</span><span>{money(item.price * item.qty)}</span></div>)}<div className="summary-line"><span>{fulfillmentMethod === "delivery" ? "Delivery" : "Pickup"}</span><span>{money(deliveryFee)}</span></div><div className="summary-line total"><span>Total</span><span>{money(total)}</span></div></aside></div></div></section></>;
 }
 function Field({ label, name, placeholder, type = "text", full = false, textarea = false, value, onChange }) { const fieldName = name || ({ "Full name": "full_name", "Phone number": "phone", "Email address": "email", "Delivery address": "address", Subject: "subject", Message: "message" }[label] || label.toLowerCase().replace(/\s+/g, "_")); return <div className={`field ${full ? "full" : ""}`}><label>{label}</label>{textarea ? <textarea name={fieldName} rows="3" placeholder={placeholder} required value={value} onChange={onChange} /> : <input name={fieldName} type={type} placeholder={placeholder} required value={value} onChange={onChange} />}</div>; }
 

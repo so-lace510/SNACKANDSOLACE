@@ -24,9 +24,9 @@ SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 ADMIN_API_KEY = os.getenv("ADMIN_API_KEY")
 PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY")
 PAYSTACK_PUBLIC_KEY = os.getenv("PAYSTACK_PUBLIC_KEY")
-PAYSTACK_CALLBACK_URL = os.getenv("PAYSTACK_CALLBACK_URL", "http://localhost:5173/checkout")
 PAYSTACK_BASE_URL = os.getenv("PAYSTACK_BASE_URL", "https://api.paystack.co")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+PAYSTACK_CALLBACK_URL = os.getenv("PAYSTACK_CALLBACK_URL", f"{FRONTEND_URL}/paymentpage.html")
 ALLOWED_ORIGINS = [
     origin.strip().rstrip("/")
     for origin in os.getenv("ALLOWED_ORIGINS", f"{FRONTEND_URL},http://localhost:5173,http://127.0.0.1:5173").split(",")
@@ -290,6 +290,37 @@ def send_contact_email(contact: ContactRequest) -> None:
         server.send_message(email)
 
 
+def send_pickup_email(order: OrderRequest) -> None:
+    smtp_host = os.getenv("SMTP_HOST", "smtp.gmail.com")
+    smtp_port = int(os.getenv("SMTP_PORT", "587"))
+    smtp_use_ssl = os.getenv("SMTP_USE_SSL", "false").lower() == "true"
+    smtp_username = os.getenv("SMTP_USERNAME")
+    smtp_password = os.getenv("SMTP_PASSWORD")
+
+    if not smtp_username or not smtp_password:
+        raise RuntimeError("Email settings are missing")
+
+    email = EmailMessage()
+    email["Subject"] = "Your SNACKANDSOLACE pickup details"
+    email["From"] = smtp_username
+    email["To"] = str(order.email)
+    email.set_content(
+        f"Hello {order.full_name},\n\n"
+        "Your SNACKANDSOLACE order has been received for pickup.\n\n"
+        "Pickup address:\n"
+        "13 Nyejelem close, Rumuewhara, Portharcourt, Nigeria\n\n"
+        "We will contact you when your order is ready.\n\n"
+        "Thank you,\nSNACKANDSOLACE"
+    )
+
+    server_class = smtplib.SMTP_SSL if smtp_use_ssl else smtplib.SMTP
+    with server_class(smtp_host, smtp_port, timeout=15) as server:
+        if not smtp_use_ssl:
+            server.starttls()
+        server.login(smtp_username, smtp_password)
+        server.send_message(email)
+
+
 @app.get("/api/health")
 def health_check():
     return {"status": "ok", "service": "snackandsolace"}
@@ -376,6 +407,12 @@ def create_order(order: OrderRequest):
 
     upsert_customer_record(order, total)
 
+    if order.fulfillment_method == "pickup":
+        try:
+            send_pickup_email(order)
+        except Exception:
+            pass
+
     return {
         "order_id": order_id,
         "status": "received",
@@ -417,9 +454,12 @@ def initialize_paystack_payment(order: OrderRequest):
     except httpx.HTTPError as exc:
         raise HTTPException(status_code=503, detail="Unable to reach Paystack right now.") from exc
 
-    data = response.json()
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise HTTPException(status_code=502, detail="Paystack returned an invalid response.") from exc
     if response.status_code >= 400 or not data.get("status"):
-        detail = data.get("message", "Paystack initialization failed")
+        detail = data.get("message") or data.get("data", {}).get("message") or "Paystack initialization failed"
         raise HTTPException(status_code=400, detail=detail)
 
     return {

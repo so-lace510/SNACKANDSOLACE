@@ -17,9 +17,9 @@ The Vercel frontend and FastAPI backend are separate services.
 For the first deployment, set these values using the real URLs and private keys:
 
 ```text
-FRONTEND_URL=https://your-site.vercel.app
-ALLOWED_ORIGINS=https://your-site.vercel.app,http://localhost:5173,http://127.0.0.1:5173
-PAYSTACK_CALLBACK_URL=https://your-site.vercel.app/checkout
+FRONTEND_URL=https://snackandsolace.vercel.app
+ALLOWED_ORIGINS=https://snackandsolace.vercel.app,http://localhost:5173,http://127.0.0.1:5173
+PAYSTACK_CALLBACK_URL=https://snackandsolace.vercel.app/paymentpage.html
 VITE_API_URL=https://snackandsolace-api.onrender.com/api
 ```
 
@@ -36,12 +36,12 @@ VITE_API_URL=https://snackandsolace-api.onrender.com/api
 
 ## 3. Finish the URL connection
 
-After Vercel gives you the real production URL, replace `your-site.vercel.app` in Render with that URL for:
+The production frontend URL is `https://snackandsolace.vercel.app`. Set these Render variables to:
 
 ```text
-FRONTEND_URL=https://your-site.vercel.app
-ALLOWED_ORIGINS=https://your-site.vercel.app,http://localhost:5173,http://127.0.0.1:5173
-PAYSTACK_CALLBACK_URL=https://your-site.vercel.app/checkout
+FRONTEND_URL=https://snackandsolace.vercel.app
+ALLOWED_ORIGINS=https://snackandsolace.vercel.app,http://localhost:5173,http://127.0.0.1:5173
+PAYSTACK_CALLBACK_URL=https://snackandsolace.vercel.app/paymentpage.html
 ```
 
 Save the Render variables and redeploy the backend. Test:

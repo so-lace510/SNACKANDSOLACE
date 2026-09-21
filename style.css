@@ -144,12 +144,14 @@ p { margin: 0 0 1em; }
 }
 .logo-image {
   display: block;
-  width: 156px;
-  height: 62px;
+  width: 74px;
+  height: 54px;
   object-fit: contain;
   object-position: center;
   flex-shrink: 0;
 }
+.nav-bar > .logo { min-width: 0; }
+.logo > span { white-space: nowrap; }
 .nav-links {
   display: flex;
   align-items: center;
@@ -798,6 +800,11 @@ section { padding: 76px 0; }
 .delivery-option small { color: var(--brown-500); }
 .delivery-option.selected { border-color: var(--emerald-700); background: var(--cream-100); }
 .pickup-note { grid-column: 1 / -1; padding: 14px 16px; border-radius: var(--radius-sm); background: var(--cream-100); color: var(--brown-700); }
+.fulfillment-panel { margin-top: 24px; padding: 20px; border: 1px solid rgba(107,68,35,0.15); border-radius: var(--radius-md); background: var(--cream-50); }
+.fulfillment-panel h3 { font-size: 1.1rem; }
+.selected-fulfillment { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--radius-sm); background: var(--cream-100); color: var(--emerald-900); }
+.text-button { border: 0; padding: 0; background: transparent; color: var(--emerald-700); font-weight: 700; text-decoration: underline; }
+.summary-note { margin: 8px 0 14px; color: var(--brown-500); font-size: 0.78rem; }
 
 .card-fields { display: none; }
 .card-fields.show { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
@@ -928,9 +935,10 @@ section { padding: 76px 0; }
 @media (max-width: 640px) {
   .container { padding: 0 16px; }
   .nav-bar { padding: 12px 16px; }
-  .logo { font-size: 1.05rem; }
-  .logo-image { width: 132px; height: 52px; }
-  .nav-actions .cart-pill { padding: 8px 12px; }
+  .logo { gap: 6px; font-size: 0.9rem; }
+  .logo-image { width: 48px; height: 42px; }
+  .nav-actions { gap: 6px; }
+  .nav-actions .cart-pill { padding: 8px 9px; font-size: 0.78rem; }
 
   .hero .container { padding-top: 32px; padding-bottom: 42px; }
   .hero h1 { font-size: clamp(2rem, 10vw, 2.7rem); }
@@ -947,6 +955,8 @@ section { padding: 76px 0; }
   .carton-presets { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .carton-btn { font-size: 0.68rem; padding: 7px 4px; }
   .bulk-order input { min-width: 0; }
+  .delivery-options { grid-template-columns: 1fr; }
+  .selected-fulfillment { align-items: flex-start; flex-direction: column; }
 
   .newsletter { padding: 28px 20px; }
   .newsletter-form { flex-direction: column; }
