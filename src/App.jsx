@@ -10,6 +10,7 @@ const PRODUCTS = [
 const CART_KEY = "adunbites_cart";
 const FULFILLMENT_KEY = "adunbites_fulfillment";
 const REVIEWS_KEY = "snackandsolace_reviews";
+const ORDER_CONFIRMATION_KEY = "snackandsolace_order_confirmation";
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://127.0.0.1:8000/api" : "https://snackandsolace.onrender.com/api");
 const money = (value) => `₦${value.toLocaleString("en-NG")}`;
 
@@ -46,6 +47,10 @@ function readCart() {
 
 function readFulfillmentMethod() {
   return localStorage.getItem(FULFILLMENT_KEY) === "pickup" ? "pickup" : "delivery";
+}
+
+function readOrderConfirmation() {
+  try { return JSON.parse(localStorage.getItem(ORDER_CONFIRMATION_KEY)); } catch { return null; }
 }
 
 function Icon({ name }) {
@@ -168,7 +173,9 @@ function Home({ products, addToCart, navigate }) {
     ["Warm & soft", "Homestyle bread snacks", "Soft crumb, hearty flavor and just the right bake for breakfast.", "hero-card-bread"],
     ["Cold pressed", "Bright fruit juice", "Freshly bottled and chilled for a refreshing everyday sip.", "hero-card-juice"],
   ];
+  const confirmation = readOrderConfirmation();
   return <>
+    {confirmation && <section className="order-notice"><div className="container"><div className="confirmation-box show"><Icon name="check" /><div><h2>Order received</h2><p>Your order is being processed and your tray is being prepared.</p><div className="order-id">Order ID: <strong>{confirmation.orderId}</strong></div></div></div></div></section>}
     <section className="hero"><div className="container"><div className="hero-copy"><span className="eyebrow" style={{ color: "var(--gold-500)" }}>Treats that feel like a hug</span><h1>Everyday snacks, made <em>for comfort</em> — made delicious.</h1><p className="lede">From crunchy chin-chin to bread snacks and cold-pressed juice, SNACKANDSOLACE brings the taste of a proper kitchen to your doorstep.</p><div className="hero-ctas"><a href="#categories" className="btn btn-primary" onClick={(event) => { event.preventDefault(); document.getElementById("categories")?.scrollIntoView({ behavior: "smooth" }); }}>Shop the tray</a><button className="btn btn-secondary" onClick={() => navigate("/about")}>Our story</button></div></div><div className="hero-tray"><div className="hero-carousel" aria-label="Featured snacks slideshow">{featured.map((item, index) => <div className={`hero-slide ${index === slide ? "active" : ""}`} key={item[1]}><div className={`hero-slide-card ${item[3]}`}><span className="hero-slide-tag">{item[0]}</span><h3>{item[1]}</h3><p>{item[2]}</p></div></div>)}</div><div className="hero-dots">{featured.map((item, index) => <button key={item[1]} className={`hero-dot ${index === slide ? "active" : ""}`} aria-label={`Show slide ${index + 1}`} onClick={() => setSlide(index)} />)}</div></div></div></section>
     <section id="categories"><div className="container"><div className="section-head"><span className="eyebrow">The full shop</span><h2>Made for your snack drawer</h2></div><div className="product-grid" id="shop">{products.map((product) => <ProductCard key={product.id} product={product} addToCart={addToCart} />)}</div></div></section>
     <section><div className="container"><div className="section-head"><span className="eyebrow">Why SNACKANDSOLACE</span><h2>Small-batch, seriously fresh</h2></div><div className="why-grid"><Why icon="clock" title="Baked with you in mind" copy="Made in small batches with care." /><Why icon="star" title="No preservatives" copy="Real butter, real fruit, honest ingredients — nothing artificial." /><Why icon="truck" title="Nationwide delivery" copy="Packed to stay crisp and fresh, wherever in Nigeria you are." /></div></div></section>
@@ -266,7 +273,7 @@ function Cart({ cart, updateQty, removeItem, navigate, fulfillmentMethod, setFul
 function Summary({ subtotal, navigate, fulfillmentMethod }) { return <aside className="summary-card"><h3>Order summary</h3><div className="summary-line"><span>Subtotal</span><span>{money(subtotal)}</span></div><div className="summary-line"><span>{fulfillmentMethod === "delivery" ? "Delivery" : "Pickup"}</span><span>{fulfillmentMethod === "delivery" ? "Calculated at checkout" : money(0)}</span></div><div className="summary-note">The exact delivery fee is confirmed from your address at checkout.</div><div className="summary-line total"><span>Subtotal</span><span>{money(subtotal)}</span></div><button className="btn btn-primary btn-block" style={{ marginTop: 20 }} onClick={() => navigate("/checkout")}>Proceed to checkout</button><button className="btn btn-secondary btn-block" style={{ marginTop: 12 }} onClick={() => navigate("/shop")}>Continue shopping</button></aside>; }
 
 function Checkout({ cart, setCart, navigate, notify, fulfillmentMethod }) {
-  const [submitted, setSubmitted] = useState(false);
+  const [confirmation, setConfirmation] = useState(readOrderConfirmation);
   const [payment] = useState("paystack");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -300,10 +307,13 @@ function Checkout({ cart, setCart, navigate, notify, fulfillmentMethod }) {
           }),
         });
         if (!orderResponse.ok) throw new Error("Order creation failed");
+        const order = await orderResponse.json();
+        const savedConfirmation = { orderId: order.order_id, status: order.status };
 
         sessionStorage.removeItem("pending_paystack_order");
         localStorage.removeItem(CART_KEY);
-        setSubmitted(true);
+        localStorage.setItem(ORDER_CONFIRMATION_KEY, JSON.stringify(savedConfirmation));
+        setConfirmation(savedConfirmation);
         setCart([]);
         notify("Order received");
         const nextUrl = new URL(window.location.href);
@@ -361,7 +371,7 @@ function Checkout({ cart, setCart, navigate, notify, fulfillmentMethod }) {
       setSubmitting(false);
     }
   };
-  if (submitted) return <section><div className="container"><div className="confirmation-box show"><Icon name="check" /><h2>Order placed!</h2><p style={{ color: "var(--brown-700)" }}>Thank you — your tray is being packed. A confirmation has been sent to your email.</p><div className="order-id">Order ID: <strong>SNS-{Date.now().toString().slice(-6)}</strong></div><div style={{ marginTop: 26 }}><button className="btn btn-secondary" onClick={() => navigate("/")}>Back to home</button></div></div></div></section>;
+  if (confirmation) return <section><div className="container"><div className="confirmation-box show"><Icon name="check" /><h2>Order received</h2><p style={{ color: "var(--brown-700)" }}>Your order is being processed and your tray is being prepared.</p><div className="order-id">Order ID: <strong>{confirmation.orderId}</strong></div><div style={{ marginTop: 26 }}><button className="btn btn-secondary" onClick={() => navigate("/")}>Back to home</button></div></div></div></section>;
   return <><PageHero title="Checkout" copy="Complete your details and pay securely with Paystack." navigate={navigate} /><section><div className="container"><div className="cart-layout"><div className="checkout-panel"><form onSubmit={submit}><div className="selected-fulfillment"><strong>{fulfillmentMethod === "delivery" ? "Delivery selected" : "Pickup selected"}</strong><span><button type="button" className="text-button" onClick={() => navigate("/cart")}>Change in cart</button></span></div><h3 style={{ margin: "26px 0 20px" }}>Your details</h3><div className="form-grid"><Field label="Full name" placeholder="Chioma Eze" /><Field label="Phone number" placeholder="080 000 0000" type="tel" /><Field label="Email address" placeholder="you@example.com" type="email" full />{fulfillmentMethod === "delivery" ? <Field label="Delivery address" placeholder="Street, city, state" textarea full value={deliveryAddress} onChange={(event) => setDeliveryAddress(event.target.value)} /> : <div className="pickup-note full">Pickup address: 13 Nyejelem close, Rumuewhara, Portharcourt, Nigeria</div>}</div><h3 style={{ margin: "8px 0 16px" }}>Payment method</h3><div className="pay-methods"><label className="pay-method selected"><input type="radio" name="payment-method" checked readOnly />Pay securely with Paystack</label></div>{error && <div className="form-msg error" style={{ marginTop: 12 }}>{error}</div>}<button type="submit" className="btn btn-primary btn-block" style={{ marginTop: 10 }} disabled={!cart.length || submitting}>{submitting ? "Processing..." : "Continue to Paystack"}</button></form></div><aside className="summary-card"><h3>Order summary</h3>{cart.map((item) => <div className="summary-line" key={item.id}><span>{item.name} x {item.qty}</span><span>{money(item.price * item.qty)}</span></div>)}<div className="summary-line"><span>{fulfillmentMethod === "delivery" ? "Delivery" : "Pickup"}</span><span>{money(deliveryFee)}</span></div><div className="summary-line total"><span>Total</span><span>{money(total)}</span></div></aside></div></div></section></>;
 }
 function Field({ label, name, placeholder, type = "text", full = false, textarea = false, value, onChange }) { const fieldName = name || ({ "Full name": "full_name", "Phone number": "phone", "Email address": "email", "Delivery address": "address", Subject: "subject", Message: "message" }[label] || label.toLowerCase().replace(/\s+/g, "_")); return <div className={`field ${full ? "full" : ""}`}><label>{label}</label>{textarea ? <textarea name={fieldName} rows="3" placeholder={placeholder} required value={value} onChange={onChange} /> : <input name={fieldName} type={type} placeholder={placeholder} required value={value} onChange={onChange} />}</div>; }
