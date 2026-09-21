@@ -388,6 +388,7 @@ function Checkout({ cart, clearCart, navigate, notify, fulfillmentMethod }) {
 
         const paystackData = await response.json();
         sessionStorage.setItem("pending_paystack_order", JSON.stringify(payload));
+        clearCart();
         window.location.href = paystackData.authorization_url;
         return;
       }
