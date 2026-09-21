@@ -9,7 +9,7 @@ const PRODUCTS = [
 
 const CART_KEY = "adunbites_cart";
 const FULFILLMENT_KEY = "adunbites_fulfillment";
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://127.0.0.1:8000/api" : "/api");
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://127.0.0.1:8000/api" : "https://snackandsolace.onrender.com/api");
 const money = (value) => `₦${value.toLocaleString("en-NG")}`;
 
 const getDeliveryFee = (address = "") => {
