@@ -37,6 +37,7 @@ const storage = {
 };
 
 const CART_KEY = "adunbites_cart";
+const REVIEWS_KEY = "snackandsolace_reviews";
 const API_URL = window.SNACKANDSOLACE_API_URL || "http://127.0.0.1:8000/api";
 
 function getCart() {
@@ -312,6 +313,49 @@ function initNewsletterForm() {
   });
 }
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>'"]/g, (character) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;",
+  }[character]));
+}
+
+function renderReviews() {
+  const list = document.getElementById("review-list");
+  const count = document.getElementById("review-count");
+  if (!list || !count) return;
+  const reviews = storage.get(REVIEWS_KEY) || [];
+  count.textContent = `${reviews.length} review${reviews.length === 1 ? "" : "s"}`;
+  list.innerHTML = reviews.length ? reviews.map((review) => `
+    <article class="review-card">
+      <div class="review-card-top">
+        <strong>${escapeHtml(review.name)}</strong>
+        <span class="review-stars" aria-label="${review.rating} out of 5 stars">${"★".repeat(review.rating)}${"☆".repeat(5 - review.rating)}</span>
+      </div>
+      <p>${escapeHtml(review.message)}</p>
+    </article>
+  `).join("") : '<p class="review-empty">Be the first to share your experience.</p>';
+}
+
+function initReviewForm() {
+  const form = document.getElementById("review-form");
+  if (!form) return;
+  renderReviews();
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const data = new FormData(form);
+    const reviews = storage.get(REVIEWS_KEY) || [];
+    reviews.unshift({
+      name: data.get("name").trim(),
+      rating: Number(data.get("rating")),
+      message: data.get("message").trim(),
+    });
+    storage.set(REVIEWS_KEY, reviews);
+    renderReviews();
+    form.reset();
+    document.getElementById("review-msg").textContent = "Thanks for sharing your review!";
+  });
+}
+
 /* ---------- Cart page ---------- */
 function renderCartPage() {
   const body = document.getElementById("cart-body");
@@ -535,6 +579,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderProductGrid("product-grid");
   initCategoryFilters();
   initNewsletterForm();
+  initReviewForm();
   initAddToCart();
   renderCartPage();
   initPaymentForm();

@@ -225,21 +225,45 @@
 <section style="background:var(--cream-100);">
   <div class="container">
     <div class="section-head">
-      <span class="eyebrow">Loved locally</span>
-      <h2>What customers say</h2>
+      <span class="eyebrow">Your experience matters</span>
+      <h2>Share your review</h2>
     </div>
-    <div class="testimonial-row">
-      <div class="testimonial">
-        <p>"The chin-chin doesn't go soft after two days like every other brand I've tried. My kids finish a pack in one sitting."</p>
-        <strong>— Ngozi A., Abuja</strong>
-      </div>
-      <div class="testimonial">
-        <p>"Ordered the family loaf and cookies for a Sunday brunch. Everything arrived warm-fresh and beautifully packed."</p>
-        <strong>— Tunde O., Lagos</strong>
-      </div>
-      <div class="testimonial">
-        <p>"Zobo juice tastes homemade, not the overly sweet bottled stuff. Now a weekly staple in our fridge."</p>
-        <strong>— Amaka I., Enugu</strong>
+    <div class="review-layout">
+      <form id="review-form" class="review-form">
+        <div class="form-field">
+          <label for="review-name">Your name</label>
+          <input id="review-name" name="name" type="text" maxlength="60" placeholder="Enter your name" required>
+        </div>
+        <fieldset class="rating-field">
+          <legend>Your rating</legend>
+          <div class="star-rating" role="radiogroup" aria-label="Choose a star rating">
+            <input id="star-5" name="rating" type="radio" value="5" required>
+            <label for="star-5" title="5 stars">&#9733;</label>
+            <input id="star-4" name="rating" type="radio" value="4">
+            <label for="star-4" title="4 stars">&#9733;</label>
+            <input id="star-3" name="rating" type="radio" value="3">
+            <label for="star-3" title="3 stars">&#9733;</label>
+            <input id="star-2" name="rating" type="radio" value="2">
+            <label for="star-2" title="2 stars">&#9733;</label>
+            <input id="star-1" name="rating" type="radio" value="1">
+            <label for="star-1" title="1 star">&#9733;</label>
+          </div>
+        </fieldset>
+        <div class="form-field">
+          <label for="review-message">Your review</label>
+          <textarea id="review-message" name="message" rows="5" maxlength="500" placeholder="What did you enjoy?" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit review</button>
+        <div id="review-msg" class="form-msg" role="status" aria-live="polite"></div>
+      </form>
+      <div class="review-list-wrap">
+        <div class="review-list-head">
+          <h3>Customer reviews</h3>
+          <span id="review-count">0 reviews</span>
+        </div>
+        <div id="review-list" class="review-list">
+          <p class="review-empty">Be the first to share your experience.</p>
+        </div>
       </div>
     </div>
   </div>
