@@ -8,6 +8,7 @@ const PRODUCTS = [
 ];
 
 const CART_KEY = "adunbites_cart";
+const PAYMENT_CART_SNAPSHOT_KEY = "snackandsolace_payment_cart_snapshot";
 const FULFILLMENT_KEY = "adunbites_fulfillment";
 const REVIEWS_KEY = "snackandsolace_reviews";
 const ORDER_CONFIRMATION_KEY = "snackandsolace_order_confirmation";
@@ -86,6 +87,10 @@ function App() {
     localStorage.removeItem(CART_KEY);
     setCart([]);
   };
+  const restoreCart = (savedCart) => {
+    localStorage.setItem(CART_KEY, JSON.stringify(savedCart));
+    setCart(savedCart);
+  };
 
   useEffect(() => {
     localStorage.setItem(CART_KEY, JSON.stringify(cart));
@@ -152,7 +157,7 @@ function App() {
     <Header path={path} cartCount={cartCount} navigate={navigate} mobileNav={mobileNav} setMobileNav={setMobileNav} />
     {path === "/" || path === "/homepage.html" ? <Home products={products} addToCart={addToCart} navigate={navigate} /> : null}
     {path === "/cart" || path === "/cartpage.html" ? <Cart cart={cart} updateQty={updateQty} removeItem={removeItem} navigate={navigate} fulfillmentMethod={fulfillmentMethod} setFulfillmentMethod={setFulfillmentMethod} /> : null}
-    {path === "/checkout" || path === "/paymentpage.html" ? <Checkout cart={cart} clearCart={clearCart} navigate={navigate} notify={notify} fulfillmentMethod={fulfillmentMethod} /> : null}
+    {path === "/checkout" || path === "/paymentpage.html" ? <Checkout cart={cart} clearCart={clearCart} restoreCart={restoreCart} navigate={navigate} notify={notify} fulfillmentMethod={fulfillmentMethod} /> : null}
     {path === "/about" || path === "/aboutpage.html" ? <About navigate={navigate} /> : null}
     {path === "/contact" || path === "/contactpage.html" ? <BackendContact navigate={navigate} /> : null}
     {path === "/admin" || path === "/adminpage.html" ? <AdminOrders /> : null}
@@ -302,7 +307,7 @@ function Cart({ cart, updateQty, removeItem, navigate, fulfillmentMethod, setFul
 }
 function Summary({ subtotal, navigate, fulfillmentMethod }) { return <aside className="summary-card"><h3>Order summary</h3><div className="summary-line"><span>Subtotal</span><span>{money(subtotal)}</span></div><div className="summary-line"><span>{fulfillmentMethod === "delivery" ? "Delivery" : "Pickup"}</span><span>{fulfillmentMethod === "delivery" ? "Calculated at checkout" : money(0)}</span></div><div className="summary-note">The exact delivery fee is confirmed from your address at checkout.</div><div className="summary-line total"><span>Subtotal</span><span>{money(subtotal)}</span></div><button className="btn btn-primary btn-block" style={{ marginTop: 20 }} onClick={() => navigate("/checkout")}>Proceed to checkout</button><button className="btn btn-secondary btn-block" style={{ marginTop: 12 }} onClick={() => navigate("/shop")}>Continue shopping</button></aside>; }
 
-function Checkout({ cart, clearCart, navigate, notify, fulfillmentMethod }) {
+function Checkout({ cart, clearCart, restoreCart, navigate, notify, fulfillmentMethod }) {
   const [confirmation, setConfirmation] = useState(readOrderConfirmation);
   const [payment] = useState("paystack");
   const [submitting, setSubmitting] = useState(false);
@@ -343,6 +348,7 @@ function Checkout({ cart, clearCart, navigate, notify, fulfillmentMethod }) {
         const savedConfirmation = { orderId: order.order_id, status: order.status };
 
         sessionStorage.removeItem("pending_paystack_order");
+        sessionStorage.removeItem(PAYMENT_CART_SNAPSHOT_KEY);
         localStorage.setItem(ORDER_CONFIRMATION_KEY, JSON.stringify(savedConfirmation));
         setConfirmation(savedConfirmation);
         clearCart();
@@ -351,6 +357,10 @@ function Checkout({ cart, clearCart, navigate, notify, fulfillmentMethod }) {
         nextUrl.search = "";
         window.history.replaceState({}, "", nextUrl);
       } catch {
+        const savedCart = JSON.parse(sessionStorage.getItem(PAYMENT_CART_SNAPSHOT_KEY) || "null");
+        if (Array.isArray(savedCart)) restoreCart(savedCart);
+        sessionStorage.removeItem("pending_paystack_order");
+        sessionStorage.removeItem(PAYMENT_CART_SNAPSHOT_KEY);
         setError("Your payment was not completed successfully. Please try again.");
       }
     })();
@@ -388,6 +398,7 @@ function Checkout({ cart, clearCart, navigate, notify, fulfillmentMethod }) {
 
         const paystackData = await response.json();
         sessionStorage.setItem("pending_paystack_order", JSON.stringify(payload));
+        sessionStorage.setItem(PAYMENT_CART_SNAPSHOT_KEY, JSON.stringify(cart));
         clearCart();
         window.location.href = paystackData.authorization_url;
         return;
