@@ -183,20 +183,43 @@ function ReviewSection() {
   });
   const [open, setOpen] = useState(false);
   const [rating, setRating] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
 
-  const submit = (event) => {
+  useEffect(() => {
+    fetch(`${API_URL}/reviews`)
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("Reviews request failed")))
+      .then((sharedReviews) => setReviews(sharedReviews))
+      .catch(() => undefined);
+  }, []);
+
+  const submit = async (event) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const nextReviews = [{
+    const review = {
       name: String(form.get("name")).trim(),
       rating,
       message: String(form.get("message")).trim(),
-    }, ...reviews];
-    setReviews(nextReviews);
-    localStorage.setItem(REVIEWS_KEY, JSON.stringify(nextReviews));
-    event.currentTarget.reset();
-    setRating(0);
-    setOpen(false);
+    };
+    setSubmitting(true);
+    try {
+      const response = await fetch(`${API_URL}/reviews`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(review),
+      });
+      if (!response.ok) throw new Error("Review submission failed");
+      const savedReview = await response.json();
+      setReviews((current) => [savedReview, ...current]);
+      event.currentTarget.reset();
+      setRating(0);
+      setOpen(false);
+    } catch {
+      const nextReviews = [review, ...reviews];
+      setReviews(nextReviews);
+      localStorage.setItem(REVIEWS_KEY, JSON.stringify(nextReviews));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return <section style={{ background: "var(--cream-100)" }}><div className="container">
@@ -210,7 +233,7 @@ function ReviewSection() {
         <fieldset className="rating-field"><legend>Your rating</legend><div className="star-rating" role="radiogroup" aria-label="Choose a star rating">{[5, 4, 3, 2, 1].map((value) => <Fragment key={value}><input id={`react-star-${value}`} name="rating" type="radio" value={value} checked={rating === value} onChange={() => setRating(value)} required={value === 1} /><label htmlFor={`react-star-${value}`} title={`${value} stars`}>★</label></Fragment>)}</div></fieldset>
         <div className="form-field"><label htmlFor="react-review-message">Your review</label><textarea id="react-review-message" name="message" rows="5" maxLength="500" placeholder="What did you enjoy?" required /></div>
       </div>
-      <div className="review-form-actions"><button type="submit" className="btn btn-primary">Submit review</button><button type="button" className="btn btn-secondary" onClick={() => { setOpen(false); setRating(0); }}>Cancel</button></div>
+      <div className="review-form-actions"><button type="submit" className="btn btn-primary" disabled={submitting}>{submitting ? "Sending..." : "Submit review"}</button><button type="button" className="btn btn-secondary" onClick={() => { setOpen(false); setRating(0); }}>Cancel</button></div>
     </form>}
     {reviews.length > 0 && <div className="review-list-wrap"><div className="review-list-head"><h3>Customer reviews</h3><span>{reviews.length} review{reviews.length === 1 ? "" : "s"}</span></div><div className="review-list">{reviews.map((review, index) => <article className="review-card" key={`${review.name}-${index}`}><div className="review-card-top"><strong>{review.name}</strong><span className="review-stars" aria-label={`${review.rating} out of 5 stars`}>{"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}</span></div><p>{review.message}</p></article>)}</div></div>}
   </div></section>;

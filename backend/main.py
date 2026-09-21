@@ -99,6 +99,12 @@ class ContactRequest(BaseModel):
         return (self.name or self.full_name or "").strip()
 
 
+class ReviewRequest(BaseModel):
+    name: str = Field(min_length=2, max_length=60)
+    rating: int = Field(ge=1, le=5)
+    message: str = Field(min_length=5, max_length=500)
+
+
 class OrderStatusUpdate(BaseModel):
     status: Literal["received", "preparing", "shipped", "delivered"]
 
@@ -139,6 +145,17 @@ def initialize_database() -> None:
                 last_order_at TEXT NOT NULL,
                 order_count INTEGER NOT NULL DEFAULT 0,
                 total_spent INTEGER NOT NULL DEFAULT 0
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS reviews (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+                message TEXT NOT NULL,
+                created_at TEXT NOT NULL
             )
             """
         )
@@ -339,6 +356,32 @@ def root():
 @app.get("/api/products")
 def get_products():
     return PRODUCTS
+
+
+@app.get("/api/reviews")
+def get_reviews():
+    with get_database_connection() as connection:
+        rows = connection.execute(
+            "SELECT id, name, rating, message, created_at FROM reviews ORDER BY created_at DESC"
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+@app.post("/api/reviews", status_code=201)
+def create_review(review: ReviewRequest):
+    review_record = {
+        "id": f"REV-{uuid.uuid4().hex[:10].upper()}",
+        "name": review.name.strip(),
+        "rating": review.rating,
+        "message": review.message.strip(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    with get_database_connection() as connection:
+        connection.execute(
+            "INSERT INTO reviews (id, name, rating, message, created_at) VALUES (?, ?, ?, ?, ?)",
+            tuple(review_record.values()),
+        )
+    return review_record
 
 
 @app.post("/api/orders", status_code=201)
