@@ -9,6 +9,7 @@ const PRODUCTS = [
 
 const CART_KEY = "adunbites_cart";
 const FULFILLMENT_KEY = "adunbites_fulfillment";
+const REVIEWS_KEY = "snackandsolace_reviews";
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://127.0.0.1:8000/api" : "https://snackandsolace.onrender.com/api");
 const money = (value) => `₦${value.toLocaleString("en-NG")}`;
 
@@ -171,9 +172,48 @@ function Home({ products, addToCart, navigate }) {
     <section className="hero"><div className="container"><div className="hero-copy"><span className="eyebrow" style={{ color: "var(--gold-500)" }}>Treats that feel like a hug</span><h1>Everyday snacks, made <em>for comfort</em> — made delicious.</h1><p className="lede">From crunchy chin-chin to bread snacks and cold-pressed juice, SNACKANDSOLACE brings the taste of a proper kitchen to your doorstep.</p><div className="hero-ctas"><a href="#categories" className="btn btn-primary" onClick={(event) => { event.preventDefault(); document.getElementById("categories")?.scrollIntoView({ behavior: "smooth" }); }}>Shop the tray</a><button className="btn btn-secondary" onClick={() => navigate("/about")}>Our story</button></div></div><div className="hero-tray"><div className="hero-carousel" aria-label="Featured snacks slideshow">{featured.map((item, index) => <div className={`hero-slide ${index === slide ? "active" : ""}`} key={item[1]}><div className={`hero-slide-card ${item[3]}`}><span className="hero-slide-tag">{item[0]}</span><h3>{item[1]}</h3><p>{item[2]}</p></div></div>)}</div><div className="hero-dots">{featured.map((item, index) => <button key={item[1]} className={`hero-dot ${index === slide ? "active" : ""}`} aria-label={`Show slide ${index + 1}`} onClick={() => setSlide(index)} />)}</div></div></div></section>
     <section id="categories"><div className="container"><div className="section-head"><span className="eyebrow">The full shop</span><h2>Made for your snack drawer</h2></div><div className="product-grid" id="shop">{products.map((product) => <ProductCard key={product.id} product={product} addToCart={addToCart} />)}</div></div></section>
     <section><div className="container"><div className="section-head"><span className="eyebrow">Why SNACKANDSOLACE</span><h2>Small-batch, seriously fresh</h2></div><div className="why-grid"><Why icon="clock" title="Baked with you in mind" copy="Made in small batches with care." /><Why icon="star" title="No preservatives" copy="Real butter, real fruit, honest ingredients — nothing artificial." /><Why icon="truck" title="Nationwide delivery" copy="Packed to stay crisp and fresh, wherever in Nigeria you are." /></div></div></section>
-    <section style={{ background: "var(--cream-100)" }}><div className="container"><div className="section-head"><span className="eyebrow">Loved locally</span><h2>What customers say</h2></div><div className="testimonial-row"><Testimonial text="The chin-chin doesn't go soft after two days like every other brand I've tried. My kids finish a pack in one sitting." name="Ngozi A., Abuja" /><Testimonial text="Ordered the family loaf and cookies for a Sunday brunch. Everything arrived warm-fresh and beautifully packed." name="Tunde O., Lagos" /><Testimonial text="Zobo juice tastes homemade, not the overly sweet bottled stuff. Now a weekly staple in our fridge." name="Amaka I., Enugu" /></div></div></section>
+    <ReviewSection />
     <section><div className="container"><div className="newsletter"><div><h2>Get first taste of new flavors</h2><p>Join the list for early access to limited batches and delivery discounts. No spam, just snacks.</p></div><Newsletter /></div></div></section>
   </>;
+}
+
+function ReviewSection() {
+  const [reviews, setReviews] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(REVIEWS_KEY)) || []; } catch { return []; }
+  });
+  const [open, setOpen] = useState(false);
+  const [rating, setRating] = useState(0);
+
+  const submit = (event) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const nextReviews = [{
+      name: String(form.get("name")).trim(),
+      rating,
+      message: String(form.get("message")).trim(),
+    }, ...reviews];
+    setReviews(nextReviews);
+    localStorage.setItem(REVIEWS_KEY, JSON.stringify(nextReviews));
+    event.currentTarget.reset();
+    setRating(0);
+    setOpen(false);
+  };
+
+  return <section style={{ background: "var(--cream-100)" }}><div className="container">
+    <div className="review-widget">
+      <div><span className="eyebrow">Your experience matters</span><h2>How did we do?</h2><p>Leave a quick rating and tell us about your SNACKANDSOLACE treats.</p></div>
+      <div className="review-launcher"><div className="launcher-stars" aria-label="Five star rating">★ ★ ★ ★ ★</div><button type="button" className="btn btn-primary" onClick={() => setOpen(true)}>Write a review</button></div>
+    </div>
+    {open && <form className="review-form" onSubmit={submit}>
+      <div className="review-form-fields">
+        <div className="form-field"><label htmlFor="react-review-name">Your name</label><input id="react-review-name" name="name" type="text" maxLength="60" placeholder="Enter your name" required /></div>
+        <fieldset className="rating-field"><legend>Your rating</legend><div className="star-rating" role="radiogroup" aria-label="Choose a star rating">{[5, 4, 3, 2, 1].map((value) => <React.Fragment key={value}><input id={`react-star-${value}`} name="rating" type="radio" value={value} checked={rating === value} onChange={() => setRating(value)} required={value === 1} /><label htmlFor={`react-star-${value}`} title={`${value} stars`}>★</label></React.Fragment>)}</div></fieldset>
+        <div className="form-field"><label htmlFor="react-review-message">Your review</label><textarea id="react-review-message" name="message" rows="5" maxLength="500" placeholder="What did you enjoy?" required /></div>
+      </div>
+      <div className="review-form-actions"><button type="submit" className="btn btn-primary">Submit review</button><button type="button" className="btn btn-secondary" onClick={() => { setOpen(false); setRating(0); }}>Cancel</button></div>
+    </form>}
+    {reviews.length > 0 && <div className="review-list-wrap"><div className="review-list-head"><h3>Customer reviews</h3><span>{reviews.length} review{reviews.length === 1 ? "" : "s"}</span></div><div className="review-list">{reviews.map((review, index) => <article className="review-card" key={`${review.name}-${index}`}><div className="review-card-top"><strong>{review.name}</strong><span className="review-stars" aria-label={`${review.rating} out of 5 stars`}>{"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}</span></div><p>{review.message}</p></article>)}</div></div>}
+  </div></section>;
 }
 
 function ProductCard({ product, addToCart }) {
