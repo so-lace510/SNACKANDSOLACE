@@ -200,8 +200,21 @@ function ReviewSection() {
     fetch(`${API_URL}/reviews`)
       .then((response) => response.ok ? response.json() : Promise.reject(new Error("Reviews request failed")))
       .then((sharedReviews) => {
-        setReviews(sharedReviews);
-        localStorage.setItem(REVIEWS_KEY, JSON.stringify(sharedReviews));
+        setReviews((cachedReviews) => {
+          const mergedReviews = [...sharedReviews];
+          cachedReviews.forEach((cachedReview) => {
+            const alreadyIncluded = mergedReviews.some((review) =>
+              review.id === cachedReview.id || (
+                review.name === cachedReview.name &&
+                review.rating === cachedReview.rating &&
+                review.message === cachedReview.message
+              )
+            );
+            if (!alreadyIncluded) mergedReviews.push(cachedReview);
+          });
+          localStorage.setItem(REVIEWS_KEY, JSON.stringify(mergedReviews));
+          return mergedReviews;
+        });
       })
       .catch(() => undefined);
   }, []);
