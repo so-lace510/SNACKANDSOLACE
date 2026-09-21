@@ -302,6 +302,7 @@ function Checkout({ cart, setCart, navigate, notify, fulfillmentMethod }) {
         if (!orderResponse.ok) throw new Error("Order creation failed");
 
         sessionStorage.removeItem("pending_paystack_order");
+        localStorage.removeItem(CART_KEY);
         setSubmitted(true);
         setCart([]);
         notify("Order received");
