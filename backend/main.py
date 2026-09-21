@@ -360,6 +360,17 @@ def get_products():
 
 @app.get("/api/reviews")
 def get_reviews():
+    if supabase:
+        try:
+            response = (
+                supabase.table("reviews")
+                .select("id, name, rating, message, created_at")
+                .order("created_at", desc=True)
+                .execute()
+            )
+            return response.data or []
+        except Exception:
+            pass
     with get_database_connection() as connection:
         rows = connection.execute(
             "SELECT id, name, rating, message, created_at FROM reviews ORDER BY created_at DESC"
@@ -376,6 +387,12 @@ def create_review(review: ReviewRequest):
         "message": review.message.strip(),
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
+    if supabase:
+        try:
+            response = supabase.table("reviews").insert(review_record).execute()
+            return response.data[0] if response.data else review_record
+        except Exception:
+            pass
     with get_database_connection() as connection:
         connection.execute(
             "INSERT INTO reviews (id, name, rating, message, created_at) VALUES (?, ?, ?, ?, ?)",

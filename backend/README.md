@@ -27,6 +27,8 @@ SUPABASE_URL=https://your-project-id.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
+Before deploying, run `backend/supabase_reviews.sql` in the Supabase SQL Editor. Reviews use this table in production so they survive Render deploys; SQLite is used only when Supabase is unavailable locally.
+
 The `service_role` key belongs only in FastAPI and must never be placed in React or committed to Git.
 
 Set `ADMIN_API_KEY` in `.env` to protect `GET /api/orders`. Send it as the `X-Admin-Key` request header. Do not expose this key in the frontend.
