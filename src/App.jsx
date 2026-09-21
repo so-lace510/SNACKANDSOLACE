@@ -114,7 +114,7 @@ function App() {
   }, [path, shopTarget]);
 
   const navigate = (to) => {
-    const aliases = { "/about": "/aboutpage.html", "/cart": "/cartpage.html", "/checkout": "/paymentpage.html", "/contact": "/contactpage.html" };
+    const aliases = { "/about": "/aboutpage.html", "/cart": "/cartpage.html", "/contact": "/contactpage.html" };
     const next = aliases[to] || (to === "/" || to === "/shop" ? "/homepage.html" : to);
     const shouldScrollToShop = to === "/shop";
     window.history.pushState({}, "", next);
@@ -346,7 +346,7 @@ function Checkout({ cart, clearCart, navigate, notify, fulfillmentMethod }) {
         setError("Your payment was not completed successfully. Please try again.");
       }
     })();
-  }, [notify, setCart]);
+  }, [clearCart, notify]);
 
   const submit = async (event) => {
     event.preventDefault();
